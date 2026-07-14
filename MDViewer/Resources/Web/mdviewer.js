@@ -20,6 +20,31 @@
         });
     }
 
+    let currentDocumentKey = null;
+
+    function collapsedStorageKey() {
+        return currentDocumentKey ? ('mdv-collapsed:' + currentDocumentKey) : null;
+    }
+
+    function loadCollapsedSet() {
+        const key = collapsedStorageKey();
+        if (!key) return new Set();
+        try {
+            const raw = localStorage.getItem(key);
+            return raw ? new Set(JSON.parse(raw)) : new Set();
+        } catch (e) {
+            return new Set();
+        }
+    }
+
+    function saveCollapsedSet(set) {
+        const key = collapsedStorageKey();
+        if (!key) return;
+        try {
+            localStorage.setItem(key, JSON.stringify(Array.from(set)));
+        } catch (e) { /* ignore */ }
+    }
+    
     function slugify(text) {
         return text
             .toLowerCase()
@@ -69,6 +94,116 @@
     // mdviewer-local:// custom scheme. Set by Swift through setBaseURL().
     let localBaseURL = null;
 
+    function wrapCollapsibleSections(root) {
+        const HEADING_TAGS = ['H1', 'H2', 'H3', 'H4', 'H5', 'H6'];
+        const nodes = Array.from(root.childNodes);
+        root.innerHTML = '';
+
+        const collapsedSet = loadCollapsedSet();
+        const stack = [{ level: 0, container: root }];
+
+        nodes.forEach(function (node) {
+            if (node.nodeType === 3 && !node.textContent.trim()) { return; }
+
+            const tag = node.nodeType === 1 ? node.tagName : null;
+
+            if (tag && HEADING_TAGS.indexOf(tag) !== -1) {
+                const level = parseInt(tag.substring(1), 10);
+
+                while (stack.length > 1 && stack[stack.length - 1].level >= level) {
+                    stack.pop();
+                }
+
+                const anchorId = node.id || null;
+                const section = document.createElement('section');
+                section.className = 'collapsible-section';
+
+                const header = document.createElement('div');
+                header.className = 'collapsible-header';
+                header.setAttribute('role', 'button');
+                header.setAttribute('tabindex', '0');
+
+                const toggle = document.createElement('button');
+                toggle.type = 'button';
+                toggle.className = 'collapsible-toggle';
+                toggle.tabIndex = -1;
+                toggle.appendChild(createChevronSVG());
+
+                const startCollapsed = anchorId && collapsedSet.has(anchorId);
+                toggle.setAttribute('aria-expanded', startCollapsed ? 'false' : 'true');
+                toggle.setAttribute('aria-label', startCollapsed ? 'Expand section' : 'Collapse section');
+                if (startCollapsed) { section.classList.add('collapsed'); }
+
+                header.appendChild(toggle);
+                header.appendChild(node);
+                section.appendChild(header);
+
+                const body = document.createElement('div');
+                body.className = 'collapsible-body';
+                section.appendChild(body);
+
+                header.addEventListener('click', function (e) {
+                    if (e.target.closest('a')) { return; }
+                    const collapsed = section.classList.toggle('collapsed');
+                    toggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+                    toggle.setAttribute('aria-label', collapsed ? 'Expand section' : 'Collapse section');
+
+                    if (anchorId) {
+                        const set = loadCollapsedSet();
+                        if (collapsed) { set.add(anchorId); } else { set.delete(anchorId); }
+                        saveCollapsedSet(set);
+                    }
+                });
+                header.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); header.click(); }
+                });
+
+                stack[stack.length - 1].container.appendChild(section);
+                stack.push({ level: level, container: body });
+            } else {
+                stack[stack.length - 1].container.appendChild(node);
+            }
+        });
+    }
+
+    function setAllSections(collapsed) {
+        const sections = document.querySelectorAll('.collapsible-section');
+        const set = new Set();
+        sections.forEach(function (section) {
+            const toggle = section.querySelector(':scope > .collapsible-header > .collapsible-toggle');
+            const heading = section.querySelector(':scope > .collapsible-header > h1, :scope > .collapsible-header > h2, :scope > .collapsible-header > h3, :scope > .collapsible-header > h4, :scope > .collapsible-header > h5, :scope > .collapsible-header > h6');
+            const anchorId = heading ? heading.id : null;
+
+            section.classList.toggle('collapsed', collapsed);
+            if (toggle) {
+                toggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+                toggle.setAttribute('aria-label', collapsed ? 'Expand section' : 'Collapse section');
+            }
+            if (anchorId && collapsed) { set.add(anchorId); }
+        });
+        saveCollapsedSet(set);
+    }
+    
+    function createChevronSVG() {
+        const svgNS = 'http://www.w3.org/2000/svg';
+        const svg = document.createElementNS(svgNS, 'svg');
+        svg.setAttribute('viewBox', '0 0 24 24');
+        svg.setAttribute('width', '14');
+        svg.setAttribute('height', '14');
+        svg.classList.add('collapsible-chevron');
+
+        const path = document.createElementNS(svgNS, 'path');
+        path.setAttribute('d', 'M6 9l6 6 6-6');
+        path.setAttribute('fill', 'none');
+        path.setAttribute('stroke', 'currentColor');
+        path.setAttribute('stroke-width', '2');
+        path.setAttribute('stroke-linecap', 'round');
+        path.setAttribute('stroke-linejoin', 'round');
+        svg.appendChild(path);
+
+        return svg;
+    }
+    
     // Rewrite relative image sources (and other local resources) to the
     // mdviewer-local:// scheme so the Swift scheme handler can serve them.
     // Absolute URLs (http, https, data, file, the scheme itself) are left alone.
@@ -93,91 +228,103 @@
     window.MDViewer = {
 
         setContent: async function (markdown) {
-            if (!shikiHighlighter && window.__shikiReady) {
-                shikiHighlighter = await Promise.race([
-                    window.__shikiReady,
-                    new Promise(function (resolve) { setTimeout(function () { resolve(null); }, 8000); })
-                ]);
-            }
-
-            const headingsRef = [];
-            const renderer = new marked.Renderer();
-
-            renderer.heading = function (text, level, raw) {
-                const anchor = slugify(typeof raw === 'string' ? raw : text);
-                headingsRef.push({ level: level, title: typeof raw === 'string' ? raw : text, anchor: anchor });
-                return `<h${level} id="${anchor}">${text}</h${level}>\n`;
-            };
-
-            renderer.code = function (code, lang) {
-                if (lang === 'mermaid') {
-                    return `<div class="mermaid">${escapeHtml(code)}</div>`;
+            try {
+                if (!shikiHighlighter && window.__shikiReady) {
+                    shikiHighlighter = await Promise.race([
+                        window.__shikiReady,
+                        new Promise(function (resolve) { setTimeout(function () { resolve(null); }, 8000); })
+                    ]);
                 }
-                return highlightCode(code, lang);
-            };
-
-            // Pre-process math: protect $...$ from marked parsing
-            const mathBlocks = [];
-            let processed = markdown;
-
-            processed = processed.replace(/\$\$([^$]+?)\$\$/gs, function (_, expr) {
-                const placeholder = `MATHBLOCK_${mathBlocks.length}_END`;
-                mathBlocks.push({ type: 'block', expr: expr.trim() });
-                return placeholder;
-            });
-
-            processed = processed.replace(/\$([^$\n]+?)\$/g, function (_, expr) {
-                const placeholder = `MATHINLINE_${mathBlocks.length}_END`;
-                mathBlocks.push({ type: 'inline', expr: expr.trim() });
-                return placeholder;
-            });
-
-            let html = marked.parse(processed, { renderer: renderer });
-
-            // Restore math
-            if (typeof katex !== 'undefined') {
-                mathBlocks.forEach(function (m, i) {
-                    const blockPh = new RegExp(`MATHBLOCK_${i}_END`, 'g');
-                    const inlinePh = new RegExp(`MATHINLINE_${i}_END`, 'g');
-                    try {
-                        const rendered = katex.renderToString(m.expr, {
-                            displayMode: m.type === 'block',
-                            throwOnError: false
-                        });
-                        html = html.replace(blockPh, rendered).replace(inlinePh, rendered);
-                    } catch (e) {
-                        html = html.replace(blockPh, escapeHtml(m.expr))
-                                   .replace(inlinePh, escapeHtml(m.expr));
+                
+                const headingsRef = [];
+                const renderer = new marked.Renderer();
+                
+                renderer.heading = function (text, level, raw) {
+                    const anchor = slugify(typeof raw === 'string' ? raw : text);
+                    headingsRef.push({ level: level, title: typeof raw === 'string' ? raw : text, anchor: anchor });
+                    return `<h${level} id="${anchor}">${text}</h${level}>\n`;
+                };
+                
+                renderer.code = function (code, lang) {
+                    if (lang === 'mermaid') {
+                        return `<div class="mermaid">${escapeHtml(code)}</div>`;
                     }
+                    return highlightCode(code, lang);
+                };
+                
+                // Pre-process math: protect $...$ from marked parsing
+                const mathBlocks = [];
+                let processed = markdown;
+                
+                processed = processed.replace(/\$\$([^$]+?)\$\$/gs, function (_, expr) {
+                    const placeholder = `MATHBLOCK_${mathBlocks.length}_END`;
+                    mathBlocks.push({ type: 'block', expr: expr.trim() });
+                    return placeholder;
                 });
-            }
-
-            const contentEl = document.getElementById('content');
-            contentEl.innerHTML = html;
-
-            // Resolve relative image paths against the Markdown file's directory
-            rewriteLocalResources(contentEl);
-
-            // Render Mermaid diagrams
-            if (typeof mermaid !== 'undefined') {
-                try {
-                    mermaid.run({ querySelector: '.mermaid' });
-                } catch (e) {
-                    console.warn('Mermaid render error:', e);
+                
+                processed = processed.replace(/\$([^$\n]+?)\$/g, function (_, expr) {
+                    const placeholder = `MATHINLINE_${mathBlocks.length}_END`;
+                    mathBlocks.push({ type: 'inline', expr: expr.trim() });
+                    return placeholder;
+                });
+                
+                let html = marked.parse(processed, { renderer: renderer });
+                
+                // Restore math
+                if (typeof katex !== 'undefined') {
+                    mathBlocks.forEach(function (m, i) {
+                        const blockPh = new RegExp(`MATHBLOCK_${i}_END`, 'g');
+                        const inlinePh = new RegExp(`MATHINLINE_${i}_END`, 'g');
+                        try {
+                            const rendered = katex.renderToString(m.expr, {
+                                displayMode: m.type === 'block',
+                                throwOnError: false
+                            });
+                            html = html.replace(blockPh, rendered).replace(inlinePh, rendered);
+                        } catch (e) {
+                            html = html.replace(blockPh, escapeHtml(m.expr))
+                            .replace(inlinePh, escapeHtml(m.expr));
+                        }
+                    });
                 }
-            }
-
-            // Notify Swift with heading list
-            if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.headingsExtracted) {
-                window.webkit.messageHandlers.headingsExtracted.postMessage(headingsRef);
-            }
-
-            // Notify Swift render complete
-            if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.renderComplete) {
-                window.webkit.messageHandlers.renderComplete.postMessage(null);
+                
+                const contentEl = document.getElementById('content');
+                contentEl.innerHTML = html;
+                
+                // Resolve relative image paths against the Markdown file's directory
+                rewriteLocalResources(contentEl);
+                wrapCollapsibleSections(contentEl);
+                
+                // Render Mermaid diagrams
+                if (typeof mermaid !== 'undefined') {
+                    try {
+                        mermaid.run({ querySelector: '.mermaid' });
+                    } catch (e) {
+                        console.warn('Mermaid render error:', e);
+                    }
+                }
+                
+                // Notify Swift with heading list
+                if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.headingsExtracted) {
+                    window.webkit.messageHandlers.headingsExtracted.postMessage(headingsRef);
+                }
+                
+                // Notify Swift render complete
+                if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.renderComplete) {
+                    window.webkit.messageHandlers.renderComplete.postMessage(null);
+                }
+            } catch (err) {
+                console.error('MDViewer render failure:', err, err && err.stack);
             }
         },
 
+        setDocumentPath: function (path) {
+            currentDocumentKey = path;
+        },
+
+        collapseAll: function () { setAllSections(true); },
+        expandAll: function () { setAllSections(false); },
+        
         setTheme: function (themeName) {
             const link = document.getElementById('theme-css');
             if (link) {
@@ -204,6 +351,18 @@
         scrollToAnchor: function (anchorId) {
             const el = document.getElementById(anchorId);
             if (el) {
+                let node = el.parentElement;
+                while (node) {
+                    if (node.classList && node.classList.contains('collapsible-section') && node.classList.contains('collapsed')) {
+                        node.classList.remove('collapsed');
+                        const btn = node.querySelector(':scope > .collapsible-header > .collapsible-toggle');
+                        if (btn) {
+                            btn.setAttribute('aria-expanded', 'true');
+                            btn.setAttribute('aria-label', 'Collapse section');
+                        }
+                    }
+                    node = node.parentElement;
+                }
                 el.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 el.classList.add('heading-anchor-target');
                 setTimeout(function () {
@@ -211,7 +370,7 @@
                 }, 2000);
             }
         },
-
+        
         findText: function (text) {
             if (window.find) {
                 window.find(text, false, false, true, false, true, false);
@@ -226,7 +385,9 @@
 
             // Re-resolve any images already in the DOM (base may arrive after content).
             const contentEl = document.getElementById('content');
-            if (contentEl) { rewriteLocalResources(contentEl); }
+            if (contentEl) {
+                rewriteLocalResources(contentEl);
+            }
         }
     };
 

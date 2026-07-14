@@ -20,7 +20,7 @@ struct GeneralPrefsView: View {
                 }
                 .pickerStyle(.segmented)
                 .frame(maxWidth: 200)
-                .onChange(of: pdfPageSizeRaw) { newValue in
+                .onChange(of: pdfPageSizeRaw) { _, newValue in
                     NotificationCenter.default.post(name: .pdfPageSizeChanged, object: newValue)
                 }
             }

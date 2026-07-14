@@ -5,17 +5,16 @@ struct MDViewerApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
     var body: some Scene {
-        WindowGroup {
-            ContentView()
+        WindowGroup(for: URL.self) { $fileURL in
+            ContentView(fileURL: fileURL)
         }
         .windowStyle(.titleBar)
         .windowToolbarStyle(.unified(showsTitle: true))
         .commands {
-            CommandGroup(replacing: .newItem) {
-                Button("Open…") {
-                    NotificationCenter.default.post(name: .openFile, object: nil)
-                }
-                .keyboardShortcut("o", modifiers: .command)
+            CommandGroup(replacing: .newItem) { }   // suppress default New, add nothing to toolbar
+
+            CommandGroup(after: .newItem) {
+                OpenFileCommand()
             }
 
             CommandGroup(after: .newItem) {
@@ -84,6 +83,23 @@ struct MDViewerApp: App {
         Settings {
             PreferencesView()
         }
+    }
+}
+
+struct OpenFileCommand: View {
+    @Environment(\.openWindow) private var openWindow
+
+    var body: some View {
+        Button("Open…") {
+            let panel = NSOpenPanel()
+            panel.allowedContentTypes = [.markdown, .plainText]
+            panel.allowsMultipleSelection = false
+            panel.canChooseDirectories = false
+            if panel.runModal() == .OK, let url = panel.url {
+                openWindow(value: url)
+            }
+        }
+        .keyboardShortcut("o", modifiers: .command)
     }
 }
 

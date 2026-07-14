@@ -2,8 +2,10 @@ import AppKit
 import SwiftUI
 
 struct ContentView: View {
-    var initialURL: URL?
+    var fileURL: URL?
 
+    @Environment(\.openWindow) private var openWindow
+    
     @StateObject private var documentVM = DocumentViewModel()
     @StateObject private var sidebarVM = SidebarViewModel()
     @StateObject private var renderVM = RenderViewModel()
@@ -13,6 +15,14 @@ struct ContentView: View {
     @AppStorage("isSidebarVisible") private var isSidebarVisible: Bool = true
     @AppStorage("isEditorMode") private var isEditorMode: Bool = false
 
+    private func drainPendingOpens() {
+        let urls = PendingOpen.shared.urls
+        PendingOpen.shared.urls.removeAll()
+        for url in urls {
+            openWindow(value: url)
+        }
+    }
+    
     var body: some View {
         NavigationSplitView(
             sidebar: {
@@ -44,13 +54,17 @@ struct ContentView: View {
         )
         .background(WindowCloseInterceptor(documentVM: documentVM))
         .toolbar {
-            MainToolbar(documentVM: documentVM, renderVM: renderVM, exportVM: exportVM, isEditorMode: isEditorMode)
+            MainToolbar(documentVM: documentVM, renderVM: renderVM,
+                        exportVM: exportVM, isEditorMode: isEditorMode)
         }
-        .onOpenURL { url in
-            documentVM.load(url: url)
+        .onReceive(NotificationCenter.default.publisher(for: .pendingOpenChanged)) { _ in
+            drainPendingOpens()
         }
-        .onReceive(NotificationCenter.default.publisher(for: .openFile)) { _ in
-            documentVM.openFile()
+        .onAppear {
+            if let url = fileURL {
+                documentVM.load(url: url)
+            }
+            drainPendingOpens()
         }
         .onReceive(NotificationCenter.default.publisher(for: .reloadFile)) { _ in
             documentVM.reload()
@@ -75,13 +89,6 @@ struct ContentView: View {
         } message: {
             Text(documentVM.errorMessage ?? "")
         }
-        .onAppear {
-            if let url = initialURL {
-                documentVM.load(url: url)
-            } else {
-                documentVM.restoreLastOpened()
-            }
-        }
     }
 }
 
@@ -98,7 +105,18 @@ private struct WindowCloseInterceptor: NSViewRepresentable {
     func updateNSView(_ nsView: NSView, context: Context) {
         context.coordinator.documentVM = documentVM
         DispatchQueue.main.async {
-            nsView.window?.delegate = context.coordinator
+            guard let window = nsView.window else { return }
+            window.delegate = context.coordinator
+            window.identifier = NSUserInterfaceItemIdentifier("mdviewer-document-window")
+            window.tabbingMode = .preferred
+            window.tabbingIdentifier = "mdviewer-doc"
+            documentVM.hostWindow = window
+
+            // Clear initial keyboard focus off the toolbar buttons on launch
+            if window.firstResponder is NSButton || window.firstResponder === window {
+                window.makeFirstResponder(nil)
+                print("First responder at launch: \(String(describing: window.firstResponder))")
+            }
         }
     }
 

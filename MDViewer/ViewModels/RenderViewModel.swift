@@ -20,6 +20,21 @@ final class RenderViewModel: ObservableObject {
     private var pendingBaseURL: URL?
     private var cancellables = Set<AnyCancellable>()
 
+    private var pendingDocumentPath: String?
+
+    func setDocumentPath(_ path: String) {
+        guard isRendererReady else { pendingDocumentPath = path; return }
+        webView?.evaluateJavaScript("MDViewer.setDocumentPath('\(escapeForJS(path))')", completionHandler: nil)
+    }
+
+    func collapseAllSections() {
+        webView?.evaluateJavaScript("MDViewer.collapseAll()", completionHandler: nil)
+    }
+
+    func expandAllSections() {
+        webView?.evaluateJavaScript("MDViewer.expandAll()", completionHandler: nil)
+    }
+    
     init() {
         if let saved = MarkdownTheme.all.first(where: { $0.id == storedThemeId }) {
             theme = saved
@@ -82,6 +97,10 @@ final class RenderViewModel: ObservableObject {
         isRendererReady = true
         applyCurrentThemeAndFontSize()
         applyPDFPageSize()
+        if let path = pendingDocumentPath {
+            pendingDocumentPath = nil
+            webView?.evaluateJavaScript("MDViewer.setDocumentPath('\(escapeForJS(path))')", completionHandler: nil)
+        }
         if pendingBaseURL != nil {
             pendingBaseURL = nil
             applyBaseURL()

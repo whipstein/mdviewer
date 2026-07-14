@@ -5,17 +5,17 @@ struct MarkdownRenderView: View {
     @ObservedObject var documentVM: DocumentViewModel
     @ObservedObject var renderVM: RenderViewModel
     @ObservedObject var sidebarVM: SidebarViewModel
-
+    
     @State private var isSearchVisible: Bool = false
     @State private var searchText: String = ""
-
+    
     @Environment(\.colorScheme) private var colorScheme
-
+    
     var body: some View {
         ZStack(alignment: .top) {
             ZStack(alignment: .bottomLeading) {
                 WebRendererView(renderVM: renderVM, sidebarVM: sidebarVM)
-
+                
                 if !renderVM.hoveredURL.isEmpty {
                     Text(renderVM.hoveredURL)
                         .font(.system(size: 11))
@@ -29,18 +29,13 @@ struct MarkdownRenderView: View {
                         .transition(.opacity)
                 }
             }
-            .onReceive(documentVM.$text) { newText in
-                guard !newText.isEmpty else { return }
-                if let fileURL = documentVM.fileURL {
-                    renderVM.setBaseURL(fileURL.deletingLastPathComponent())
-                }
-                renderVM.renderMarkdown(newText)
-                sidebarVM.extractTOC(from: newText)
+            .onReceive(documentVM.$text) { _ in
+                renderCurrentDocument()
             }
             .onChange(of: colorScheme) { _, newScheme in
                 renderVM.applySystemAppearance(isDark: newScheme == .dark)
             }
-
+            
             if isSearchVisible {
                 SearchBarView(
                     searchText: $searchText,
@@ -49,7 +44,7 @@ struct MarkdownRenderView: View {
                 )
                 .transition(.move(edge: .top).combined(with: .opacity))
             }
-
+            
             if documentVM.isLoading {
                 ProgressView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -59,14 +54,23 @@ struct MarkdownRenderView: View {
         .animation(.easeInOut(duration: 0.15), value: isSearchVisible)
         .onAppear {
             renderVM.applyCurrentThemeAndFontSize()
-            if !documentVM.text.isEmpty {
-                renderVM.renderMarkdown(documentVM.text)
-                sidebarVM.extractTOC(from: documentVM.text)
-            }
+            renderCurrentDocument()
         }
         .onReceive(NotificationCenter.default.publisher(for: .showSearchBar)) { _ in
             withAnimation { isSearchVisible = true }
         }
+    }
+    
+    // MARK: - Rendering
+    
+    private func renderCurrentDocument() {
+        guard !documentVM.text.isEmpty else { return }
+        if let fileURL = documentVM.fileURL {
+            renderVM.setDocumentPath(fileURL.path)
+            renderVM.setBaseURL(fileURL.deletingLastPathComponent())
+        }
+        renderVM.renderMarkdown(documentVM.text)
+        sidebarVM.extractTOC(from: documentVM.text)
     }
 }
 

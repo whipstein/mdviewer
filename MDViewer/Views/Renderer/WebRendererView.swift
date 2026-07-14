@@ -5,6 +5,32 @@ extension Notification.Name {
     static let openLocalDocument = Notification.Name("MDViewer.openLocalDocument")
 }
 
+final class MDWebView: WKWebView {
+    weak var renderVM: RenderViewModel?
+
+    override func willOpenMenu(_ menu: NSMenu, with event: NSEvent) {
+        super.willOpenMenu(menu, with: event)
+
+        menu.addItem(.separator())
+
+        let expandItem = NSMenuItem(title: "Expand All Sections", action: #selector(handleExpandAll), keyEquivalent: "")
+        expandItem.target = self
+        menu.addItem(expandItem)
+
+        let collapseItem = NSMenuItem(title: "Collapse All Sections", action: #selector(handleCollapseAll), keyEquivalent: "")
+        collapseItem.target = self
+        menu.addItem(collapseItem)
+    }
+
+    @objc private func handleExpandAll() {
+        renderVM?.expandAllSections()
+    }
+
+    @objc private func handleCollapseAll() {
+        renderVM?.collapseAllSections()
+    }
+}
+
 struct WebRendererView: NSViewRepresentable {
     @ObservedObject var renderVM: RenderViewModel
     @ObservedObject var sidebarVM: SidebarViewModel
@@ -31,7 +57,11 @@ struct WebRendererView: NSViewRepresentable {
         // Allow local file access
         config.preferences.setValue(true, forKey: "allowFileAccessFromFileURLs")
 
-        let webView = WKWebView(frame: .zero, configuration: config)
+        let webView = MDWebView(frame: .zero, configuration: config)
+        webView.renderVM = renderVM
+        if #available(macOS 13.3, *) {
+            webView.isInspectable = true
+        }
         webView.allowsLinkPreview = false
         webView.navigationDelegate = context.coordinator
         webView.uiDelegate = context.coordinator
@@ -118,23 +148,6 @@ struct WebRendererView: NSViewRepresentable {
         private func handleRenderComplete() {}
 
         // MARK: - WKUIDelegate
-
-        func webView(
-            _: WKWebView,
-            createWebViewWith _: WKWebViewConfiguration,
-            for navigationAction: WKNavigationAction,
-            windowFeatures _: WKWindowFeatures
-        ) -> WKWebView? {
-            guard let url = navigationAction.request.url else { return nil }
-            Task { @MainActor in
-                if url.scheme == "file", ["md", "markdown"].contains(url.pathExtension.lowercased()) {
-                    NotificationCenter.default.post(name: .openLocalDocument, object: url)
-                } else if let scheme = url.scheme, ["http", "https", "mailto"].contains(scheme) {
-                    NSWorkspace.shared.open(url)
-                }
-            }
-            return nil
-        }
 
         // MARK: - WKNavigationDelegate
 

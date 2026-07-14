@@ -1,6 +1,6 @@
 :root {
     --font-size: 16px;
-    --content-max-width: 860px;
+    --content-max-width: 100%;
     --code-font: Menlo, "SF Mono", "JetBrains Mono", monospace;
 }
 
@@ -25,6 +25,32 @@ body {
     max-width: var(--content-max-width);
     margin: 0 auto;
     padding-top: 24px;
+}
+
+
+/* Small windows: use full available width minus body padding */
+@media (min-width: 700px) {
+    :root { --content-max-width: 680px; }
+}
+
+@media (min-width: 1000px) {
+    :root { --content-max-width: 920px; }
+}
+
+@media (min-width: 1300px) {
+    :root { --content-max-width: 1220px; }
+}
+
+@media (min-width: 1700px) {
+    :root { --content-max-width: 1620px; }
+}
+
+@media (min-width: 2200px) {
+    :root { --content-max-width: 2100px; }
+}
+
+@media (min-width: 4200px) {
+    :root { --content-max-width: 95%; }
 }
 
 /* Headings */
@@ -102,7 +128,7 @@ input[type="checkbox"] {
 
 /* Images */
 img {
-    max-width: 100%;
+    max-width: 800px;
     height: auto;
 }
 
@@ -248,4 +274,59 @@ body.dark-theme .shiki, body.dark-theme .shiki span {
         animation: none;
         background: none;
     }
+}
+
+.collapsible-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+.collapsible-header:hover {
+    background-color: var(--collapsible-hover-bg, rgba(0, 0, 0, 0.03));
+}
+.collapsible-header > h1, .collapsible-header > h2, .collapsible-header > h3,
+.collapsible-header > h4, .collapsible-header > h5, .collapsible-header > h6 {
+    margin-top: 0;
+    margin-bottom: 0;
+    flex: 1;
+    order: 2;
+}
+.collapsible-toggle {
+    order: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    padding: 0;
+    color: inherit;
+    opacity: 0.55;
+}
+.collapsible-toggle:hover {
+    opacity: 1;
+}
+.collapsible-chevron {
+    transition: transform 0.15s ease;
+}
+.collapsible-section.collapsed > .collapsible-header > .collapsible-toggle .collapsible-chevron {
+    transform: rotate(-90deg);
+}
+.collapsible-toggle:hover { opacity: 1; }
+.collapsible-section.collapsed > .collapsible-header > .collapsible-toggle {
+    transform: rotate(-90deg);
+}
+.collapsible-section.collapsed > .collapsible-body {
+    display: none;
+}
+
+/* Always show full content when printing/exporting, regardless of collapse state */
+@media print {
+    .collapsible-body { display: block !important; }
+    .collapsible-toggle { display: none; }
 }

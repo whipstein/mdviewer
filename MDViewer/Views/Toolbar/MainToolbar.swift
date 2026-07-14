@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct MainToolbar: ToolbarContent {
+    @Environment(\.openWindow) private var openWindow
     @ObservedObject var documentVM: DocumentViewModel
     @ObservedObject var renderVM: RenderViewModel
     @ObservedObject var exportVM: ExportViewModel
@@ -9,14 +10,22 @@ struct MainToolbar: ToolbarContent {
     var body: some ToolbarContent {
         ToolbarItem(placement: .navigation) {
             Button {
-                documentVM.openFile()
+                if let url = FilePicker.pickMarkdownURL() { openWindow(value: url) }
             } label: {
                 Label("Open", systemImage: "folder")
             }
+            .keyboardShortcut("o", modifiers: .command)   // ← moved here
             .help("Open Markdown File (⌘O)")
         }
 
         ToolbarItemGroup(placement: .primaryAction) {
+            // Editor toggle button
+            Button {
+                NotificationCenter.default.post(name: .toggleEditorMode, object: nil)
+            } label: {
+                Label("Editor", systemImage: "pencil")
+            }
+
             // Editor toggle button
             Button {
                 NotificationCenter.default.post(name: .toggleEditorMode, object: nil)
