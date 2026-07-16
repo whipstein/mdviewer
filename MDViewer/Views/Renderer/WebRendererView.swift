@@ -59,9 +59,11 @@ struct WebRendererView: NSViewRepresentable {
 
         let webView = MDWebView(frame: .zero, configuration: config)
         webView.renderVM = renderVM
+        #if DEBUG
         if #available(macOS 13.3, *) {
             webView.isInspectable = true
         }
+        #endif
         webView.allowsLinkPreview = false
         webView.navigationDelegate = context.coordinator
         webView.uiDelegate = context.coordinator

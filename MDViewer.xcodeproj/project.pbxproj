@@ -25,36 +25,6 @@
 		A739EF050629669FD0DF7D9C /* FileWatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = C09A371577BF803F4ACDBAC2 /* FileWatcher.swift */; };
 		AA89C104300462B100E9DE65 /* FilePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA89C103300462AC00E9DE65 /* FilePicker.swift */; };
 		AA89C106300466C000E9DE65 /* PendingOpen.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA89C105300466BC00E9DE65 /* PendingOpen.swift */; };
-		AAB35A5430040D41002B56AE /* KaTeX_Main-Regular.woff2 in Resources */ = {isa = PBXBuildFile; fileRef = AAB35A3D30040D41002B56AE /* KaTeX_Main-Regular.woff2 */; };
-		AAB35A5530040D41002B56AE /* KaTeX_Main-BoldItalic.woff2 in Resources */ = {isa = PBXBuildFile; fileRef = AAB35A3B30040D41002B56AE /* KaTeX_Main-BoldItalic.woff2 */; };
-		AAB35A5630040D41002B56AE /* KaTeX_SansSerif-Bold.woff2 in Resources */ = {isa = PBXBuildFile; fileRef = AAB35A4030040D41002B56AE /* KaTeX_SansSerif-Bold.woff2 */; };
-		AAB35A5730040D41002B56AE /* KaTeX_Script-Regular.woff2 in Resources */ = {isa = PBXBuildFile; fileRef = AAB35A4330040D41002B56AE /* KaTeX_Script-Regular.woff2 */; };
-		AAB35A5830040D41002B56AE /* github-dark.css in Resources */ = {isa = PBXBuildFile; fileRef = AAB35A3230040D41002B56AE /* github-dark.css */; };
-		AAB35A5930040D41002B56AE /* KaTeX_Fraktur-Regular.woff2 in Resources */ = {isa = PBXBuildFile; fileRef = AAB35A3930040D41002B56AE /* KaTeX_Fraktur-Regular.woff2 */; };
-		AAB35A5A30040D41002B56AE /* github-light.css in Resources */ = {isa = PBXBuildFile; fileRef = AAB35A3330040D41002B56AE /* github-light.css */; };
-		AAB35A5B30040D41002B56AE /* KaTeX_Math-BoldItalic.woff2 in Resources */ = {isa = PBXBuildFile; fileRef = AAB35A3E30040D41002B56AE /* KaTeX_Math-BoldItalic.woff2 */; };
-		AAB35A5C30040D41002B56AE /* mdviewer-base.css in Resources */ = {isa = PBXBuildFile; fileRef = AAB35A5130040D41002B56AE /* mdviewer-base.css */; };
-		AAB35A5D30040D41002B56AE /* KaTeX_Typewriter-Regular.woff2 in Resources */ = {isa = PBXBuildFile; fileRef = AAB35A4830040D41002B56AE /* KaTeX_Typewriter-Regular.woff2 */; };
-		AAB35A5E30040D41002B56AE /* katex.min.js in Resources */ = {isa = PBXBuildFile; fileRef = AAB35A4B30040D41002B56AE /* katex.min.js */; };
-		AAB35A5F30040D41002B56AE /* KaTeX_SansSerif-Regular.woff2 in Resources */ = {isa = PBXBuildFile; fileRef = AAB35A4230040D41002B56AE /* KaTeX_SansSerif-Regular.woff2 */; };
-		AAB35A6030040D41002B56AE /* KaTeX_Fraktur-Bold.woff2 in Resources */ = {isa = PBXBuildFile; fileRef = AAB35A3830040D41002B56AE /* KaTeX_Fraktur-Bold.woff2 */; };
-		AAB35A6130040D41002B56AE /* KaTeX_Caligraphic-Bold.woff2 in Resources */ = {isa = PBXBuildFile; fileRef = AAB35A3630040D41002B56AE /* KaTeX_Caligraphic-Bold.woff2 */; };
-		AAB35A6230040D41002B56AE /* KaTeX_Math-Italic.woff2 in Resources */ = {isa = PBXBuildFile; fileRef = AAB35A3F30040D41002B56AE /* KaTeX_Math-Italic.woff2 */; };
-		AAB35A6330040D41002B56AE /* mdviewer.js in Resources */ = {isa = PBXBuildFile; fileRef = AAB35A5030040D41002B56AE /* mdviewer.js */; };
-		AAB35A6430040D41002B56AE /* KaTeX_Caligraphic-Regular.woff2 in Resources */ = {isa = PBXBuildFile; fileRef = AAB35A3730040D41002B56AE /* KaTeX_Caligraphic-Regular.woff2 */; };
-		AAB35A6530040D41002B56AE /* KaTeX_SansSerif-Italic.woff2 in Resources */ = {isa = PBXBuildFile; fileRef = AAB35A4130040D41002B56AE /* KaTeX_SansSerif-Italic.woff2 */; };
-		AAB35A6630040D41002B56AE /* KaTeX_Main-Bold.woff2 in Resources */ = {isa = PBXBuildFile; fileRef = AAB35A3A30040D41002B56AE /* KaTeX_Main-Bold.woff2 */; };
-		AAB35A6730040D41002B56AE /* KaTeX_Main-Italic.woff2 in Resources */ = {isa = PBXBuildFile; fileRef = AAB35A3C30040D41002B56AE /* KaTeX_Main-Italic.woff2 */; };
-		AAB35A6830040D41002B56AE /* renderer.html in Resources */ = {isa = PBXBuildFile; fileRef = AAB35A5230040D41002B56AE /* renderer.html */; };
-		AAB35A6930040D41002B56AE /* KaTeX_Size4-Regular.woff2 in Resources */ = {isa = PBXBuildFile; fileRef = AAB35A4730040D41002B56AE /* KaTeX_Size4-Regular.woff2 */; };
-		AAB35A6A30040D41002B56AE /* mermaid.min.js in Resources */ = {isa = PBXBuildFile; fileRef = AAB35A4D30040D41002B56AE /* mermaid.min.js */; };
-		AAB35A6B30040D41002B56AE /* KaTeX_AMS-Regular.woff2 in Resources */ = {isa = PBXBuildFile; fileRef = AAB35A3530040D41002B56AE /* KaTeX_AMS-Regular.woff2 */; };
-		AAB35A6C30040D41002B56AE /* marked.min.js in Resources */ = {isa = PBXBuildFile; fileRef = AAB35A4C30040D41002B56AE /* marked.min.js */; };
-		AAB35A6D30040D41002B56AE /* KaTeX_Size1-Regular.woff2 in Resources */ = {isa = PBXBuildFile; fileRef = AAB35A4430040D41002B56AE /* KaTeX_Size1-Regular.woff2 */; };
-		AAB35A6E30040D41002B56AE /* KaTeX_Size2-Regular.woff2 in Resources */ = {isa = PBXBuildFile; fileRef = AAB35A4530040D41002B56AE /* KaTeX_Size2-Regular.woff2 */; };
-		AAB35A6F30040D41002B56AE /* shiki.bundle.js in Resources */ = {isa = PBXBuildFile; fileRef = AAB35A4E30040D41002B56AE /* shiki.bundle.js */; };
-		AAB35A7030040D41002B56AE /* katex.min.css in Resources */ = {isa = PBXBuildFile; fileRef = AAB35A4A30040D41002B56AE /* katex.min.css */; };
-		AAB35A7130040D41002B56AE /* KaTeX_Size3-Regular.woff2 in Resources */ = {isa = PBXBuildFile; fileRef = AAB35A4630040D41002B56AE /* KaTeX_Size3-Regular.woff2 */; };
 		BD552CED92488D339AEC4229 /* AppearancePrefsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 298DB17004CE01CE37DC9066 /* AppearancePrefsView.swift */; };
 		C1DD0EBC2146C7AB379CA57C /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78804F6494175E634ED2FBB5 /* SidebarView.swift */; };
 		CB6D21A84509A808B489811E /* LocalSchemeHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F2A86EAF01F5135A7441D62 /* LocalSchemeHandler.swift */; };
@@ -119,26 +89,6 @@
 		AA89C105300466BC00E9DE65 /* PendingOpen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingOpen.swift; sourceTree = "<group>"; };
 		AAB35A3230040D41002B56AE /* github-dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "github-dark.css"; sourceTree = "<group>"; };
 		AAB35A3330040D41002B56AE /* github-light.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "github-light.css"; sourceTree = "<group>"; };
-		AAB35A3530040D41002B56AE /* KaTeX_AMS-Regular.woff2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "KaTeX_AMS-Regular.woff2"; sourceTree = "<group>"; };
-		AAB35A3630040D41002B56AE /* KaTeX_Caligraphic-Bold.woff2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "KaTeX_Caligraphic-Bold.woff2"; sourceTree = "<group>"; };
-		AAB35A3730040D41002B56AE /* KaTeX_Caligraphic-Regular.woff2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "KaTeX_Caligraphic-Regular.woff2"; sourceTree = "<group>"; };
-		AAB35A3830040D41002B56AE /* KaTeX_Fraktur-Bold.woff2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "KaTeX_Fraktur-Bold.woff2"; sourceTree = "<group>"; };
-		AAB35A3930040D41002B56AE /* KaTeX_Fraktur-Regular.woff2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "KaTeX_Fraktur-Regular.woff2"; sourceTree = "<group>"; };
-		AAB35A3A30040D41002B56AE /* KaTeX_Main-Bold.woff2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "KaTeX_Main-Bold.woff2"; sourceTree = "<group>"; };
-		AAB35A3B30040D41002B56AE /* KaTeX_Main-BoldItalic.woff2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "KaTeX_Main-BoldItalic.woff2"; sourceTree = "<group>"; };
-		AAB35A3C30040D41002B56AE /* KaTeX_Main-Italic.woff2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "KaTeX_Main-Italic.woff2"; sourceTree = "<group>"; };
-		AAB35A3D30040D41002B56AE /* KaTeX_Main-Regular.woff2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "KaTeX_Main-Regular.woff2"; sourceTree = "<group>"; };
-		AAB35A3E30040D41002B56AE /* KaTeX_Math-BoldItalic.woff2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "KaTeX_Math-BoldItalic.woff2"; sourceTree = "<group>"; };
-		AAB35A3F30040D41002B56AE /* KaTeX_Math-Italic.woff2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "KaTeX_Math-Italic.woff2"; sourceTree = "<group>"; };
-		AAB35A4030040D41002B56AE /* KaTeX_SansSerif-Bold.woff2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "KaTeX_SansSerif-Bold.woff2"; sourceTree = "<group>"; };
-		AAB35A4130040D41002B56AE /* KaTeX_SansSerif-Italic.woff2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "KaTeX_SansSerif-Italic.woff2"; sourceTree = "<group>"; };
-		AAB35A4230040D41002B56AE /* KaTeX_SansSerif-Regular.woff2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "KaTeX_SansSerif-Regular.woff2"; sourceTree = "<group>"; };
-		AAB35A4330040D41002B56AE /* KaTeX_Script-Regular.woff2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "KaTeX_Script-Regular.woff2"; sourceTree = "<group>"; };
-		AAB35A4430040D41002B56AE /* KaTeX_Size1-Regular.woff2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "KaTeX_Size1-Regular.woff2"; sourceTree = "<group>"; };
-		AAB35A4530040D41002B56AE /* KaTeX_Size2-Regular.woff2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "KaTeX_Size2-Regular.woff2"; sourceTree = "<group>"; };
-		AAB35A4630040D41002B56AE /* KaTeX_Size3-Regular.woff2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "KaTeX_Size3-Regular.woff2"; sourceTree = "<group>"; };
-		AAB35A4730040D41002B56AE /* KaTeX_Size4-Regular.woff2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "KaTeX_Size4-Regular.woff2"; sourceTree = "<group>"; };
-		AAB35A4830040D41002B56AE /* KaTeX_Typewriter-Regular.woff2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "KaTeX_Typewriter-Regular.woff2"; sourceTree = "<group>"; };
 		AAB35A4A30040D41002B56AE /* katex.min.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = katex.min.css; sourceTree = "<group>"; };
 		AAB35A4B30040D41002B56AE /* katex.min.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = katex.min.js; sourceTree = "<group>"; };
 		AAB35A4C30040D41002B56AE /* marked.min.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = marked.min.js; sourceTree = "<group>"; };
@@ -261,37 +211,9 @@
 			path = themes;
 			sourceTree = "<group>";
 		};
-		AAB35A4930040D41002B56AE /* katex-fonts */ = {
-			isa = PBXGroup;
-			children = (
-				AAB35A3530040D41002B56AE /* KaTeX_AMS-Regular.woff2 */,
-				AAB35A3630040D41002B56AE /* KaTeX_Caligraphic-Bold.woff2 */,
-				AAB35A3730040D41002B56AE /* KaTeX_Caligraphic-Regular.woff2 */,
-				AAB35A3830040D41002B56AE /* KaTeX_Fraktur-Bold.woff2 */,
-				AAB35A3930040D41002B56AE /* KaTeX_Fraktur-Regular.woff2 */,
-				AAB35A3A30040D41002B56AE /* KaTeX_Main-Bold.woff2 */,
-				AAB35A3B30040D41002B56AE /* KaTeX_Main-BoldItalic.woff2 */,
-				AAB35A3C30040D41002B56AE /* KaTeX_Main-Italic.woff2 */,
-				AAB35A3D30040D41002B56AE /* KaTeX_Main-Regular.woff2 */,
-				AAB35A3E30040D41002B56AE /* KaTeX_Math-BoldItalic.woff2 */,
-				AAB35A3F30040D41002B56AE /* KaTeX_Math-Italic.woff2 */,
-				AAB35A4030040D41002B56AE /* KaTeX_SansSerif-Bold.woff2 */,
-				AAB35A4130040D41002B56AE /* KaTeX_SansSerif-Italic.woff2 */,
-				AAB35A4230040D41002B56AE /* KaTeX_SansSerif-Regular.woff2 */,
-				AAB35A4330040D41002B56AE /* KaTeX_Script-Regular.woff2 */,
-				AAB35A4430040D41002B56AE /* KaTeX_Size1-Regular.woff2 */,
-				AAB35A4530040D41002B56AE /* KaTeX_Size2-Regular.woff2 */,
-				AAB35A4630040D41002B56AE /* KaTeX_Size3-Regular.woff2 */,
-				AAB35A4730040D41002B56AE /* KaTeX_Size4-Regular.woff2 */,
-				AAB35A4830040D41002B56AE /* KaTeX_Typewriter-Regular.woff2 */,
-			);
-			path = "katex-fonts";
-			sourceTree = "<group>";
-		};
 		AAB35A4F30040D41002B56AE /* vendor */ = {
 			isa = PBXGroup;
 			children = (
-				AAB35A4930040D41002B56AE /* katex-fonts */,
 				AAB35A4A30040D41002B56AE /* katex.min.css */,
 				AAB35A4B30040D41002B56AE /* katex.min.js */,
 				AAB35A4C30040D41002B56AE /* marked.min.js */,
@@ -464,36 +386,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AAB35A5430040D41002B56AE /* KaTeX_Main-Regular.woff2 in Resources */,
-				AAB35A5530040D41002B56AE /* KaTeX_Main-BoldItalic.woff2 in Resources */,
-				AAB35A5630040D41002B56AE /* KaTeX_SansSerif-Bold.woff2 in Resources */,
-				AAB35A5730040D41002B56AE /* KaTeX_Script-Regular.woff2 in Resources */,
-				AAB35A5830040D41002B56AE /* github-dark.css in Resources */,
-				AAB35A5930040D41002B56AE /* KaTeX_Fraktur-Regular.woff2 in Resources */,
-				AAB35A5A30040D41002B56AE /* github-light.css in Resources */,
-				AAB35A5B30040D41002B56AE /* KaTeX_Math-BoldItalic.woff2 in Resources */,
-				AAB35A5C30040D41002B56AE /* mdviewer-base.css in Resources */,
-				AAB35A5D30040D41002B56AE /* KaTeX_Typewriter-Regular.woff2 in Resources */,
-				AAB35A5E30040D41002B56AE /* katex.min.js in Resources */,
-				AAB35A5F30040D41002B56AE /* KaTeX_SansSerif-Regular.woff2 in Resources */,
-				AAB35A6030040D41002B56AE /* KaTeX_Fraktur-Bold.woff2 in Resources */,
-				AAB35A6130040D41002B56AE /* KaTeX_Caligraphic-Bold.woff2 in Resources */,
-				AAB35A6230040D41002B56AE /* KaTeX_Math-Italic.woff2 in Resources */,
-				AAB35A6330040D41002B56AE /* mdviewer.js in Resources */,
-				AAB35A6430040D41002B56AE /* KaTeX_Caligraphic-Regular.woff2 in Resources */,
-				AAB35A6530040D41002B56AE /* KaTeX_SansSerif-Italic.woff2 in Resources */,
-				AAB35A6630040D41002B56AE /* KaTeX_Main-Bold.woff2 in Resources */,
-				AAB35A6730040D41002B56AE /* KaTeX_Main-Italic.woff2 in Resources */,
-				AAB35A6830040D41002B56AE /* renderer.html in Resources */,
-				AAB35A6930040D41002B56AE /* KaTeX_Size4-Regular.woff2 in Resources */,
-				AAB35A6A30040D41002B56AE /* mermaid.min.js in Resources */,
-				AAB35A6B30040D41002B56AE /* KaTeX_AMS-Regular.woff2 in Resources */,
-				AAB35A6C30040D41002B56AE /* marked.min.js in Resources */,
-				AAB35A6D30040D41002B56AE /* KaTeX_Size1-Regular.woff2 in Resources */,
-				AAB35A6E30040D41002B56AE /* KaTeX_Size2-Regular.woff2 in Resources */,
-				AAB35A6F30040D41002B56AE /* shiki.bundle.js in Resources */,
-				AAB35A7030040D41002B56AE /* katex.min.css in Resources */,
-				AAB35A7130040D41002B56AE /* KaTeX_Size3-Regular.woff2 in Resources */,
 				E6AEB157AB3053992DA01274 /* Assets.xcassets in Resources */,
 				A68A96B026F1AF057C8DA634 /* Localizable.strings in Resources */,
 			);
