@@ -14,7 +14,6 @@ struct MainToolbar: ToolbarContent {
             } label: {
                 Label("Open", systemImage: "folder")
             }
-            .keyboardShortcut("o", modifiers: .command)   // ← moved here
             .help("Open Markdown File (⌘O)")
         }
 
@@ -25,15 +24,6 @@ struct MainToolbar: ToolbarContent {
             } label: {
                 Label("Editor", systemImage: "pencil")
             }
-
-            // Editor toggle button
-            Button {
-                NotificationCenter.default.post(name: .toggleEditorMode, object: nil)
-            } label: {
-                Label("Editor", systemImage: "pencil")
-            }
-            .foregroundColor(isEditorMode ? .accentColor : .primary)
-            .help("Toggle Editor Mode (⌘E)")
 
             // Save button
             Button {
