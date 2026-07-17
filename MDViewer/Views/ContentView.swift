@@ -106,17 +106,10 @@ private struct WindowCloseInterceptor: NSViewRepresentable {
         context.coordinator.documentVM = documentVM
         DispatchQueue.main.async {
             guard let window = nsView.window else { return }
-            window.delegate = context.coordinator
-            window.identifier = NSUserInterfaceItemIdentifier("mdviewer-document-window")
-            window.tabbingMode = .preferred
-            window.tabbingIdentifier = "mdviewer-doc"
             documentVM.hostWindow = window
-
-            // Clear initial keyboard focus off the toolbar buttons on launch
-            if window.firstResponder is NSButton || window.firstResponder === window {
-                window.makeFirstResponder(nil)
-                print("First responder at launch: \(String(describing: window.firstResponder))")
-            }
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            nsView.window?.makeFirstResponder(nil)
         }
     }
 
