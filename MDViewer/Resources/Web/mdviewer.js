@@ -224,6 +224,49 @@
         });
     }
 
+    // Find the anchor id of the collapsible section containing a given element
+    function sectionAnchorFromElement(el) {
+        let node = el;
+        while (node && node !== document.body) {
+            if (node.classList && node.classList.contains('collapsible-section')) {
+                const heading = node.querySelector(':scope > .collapsible-header > h1, :scope > .collapsible-header > h2, :scope > .collapsible-header > h3, :scope > .collapsible-header > h4, :scope > .collapsible-header > h5, :scope > .collapsible-header > h6');
+                return heading ? heading.id : null;
+            }
+            node = node.parentElement;
+        }
+        return null;
+    }
+
+    function sectionFromAnchor(anchor) {
+        const heading = document.getElementById(anchor);
+        if (!heading) return null;
+        return heading.closest('.collapsible-section');
+    }
+
+    function setSectionSubtree(section, collapsed) {
+        if (!section) return;
+        const set = loadCollapsedSet();
+        const apply = function (sec) {
+            const heading = sec.querySelector(':scope > .collapsible-header > h1, :scope > .collapsible-header > h2, :scope > .collapsible-header > h3, :scope > .collapsible-header > h4, :scope > .collapsible-header > h5, :scope > .collapsible-header > h6');
+            const toggle = sec.querySelector(':scope > .collapsible-header > .collapsible-toggle');
+            sec.classList.toggle('collapsed', collapsed);
+            if (toggle) {
+                toggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+                toggle.setAttribute('aria-label', collapsed ? 'Expand section' : 'Collapse section');
+            }
+            if (heading && heading.id) {
+                if (collapsed) { set.add(heading.id); } else { set.delete(heading.id); }
+            }
+            // recurse into nested collapsible sections inside this one's body
+            const body = sec.querySelector(':scope > .collapsible-body');
+            if (body) {
+                body.querySelectorAll(':scope > .collapsible-section').forEach(apply);
+            }
+        };
+        apply(section);
+        saveCollapsedSet(set);
+    }
+    
     // -- Public MDViewer API (called from Swift via evaluateJavaScript)
     window.MDViewer = {
 
@@ -377,6 +420,12 @@
             }
         },
 
+        collapseSection: function (anchor) { setSectionSubtree(sectionFromAnchor(anchor), true); },
+        expandSection: function (anchor) { setSectionSubtree(sectionFromAnchor(anchor), false); },
+
+        // Store the anchor under the last right-click, for the native menu to read
+        _lastContextAnchor: null,
+        
         setBaseURL: function (url) {
             // Store the base for relative image resolution. We do NOT set a
             // <base> element, since that would also redirect the renderer's own
@@ -435,4 +484,8 @@
         }
     });
 
+    document.addEventListener('contextmenu', function (e) {
+        window.MDViewer._lastContextAnchor = sectionAnchorFromElement(e.target);
+    });
+    
 })();

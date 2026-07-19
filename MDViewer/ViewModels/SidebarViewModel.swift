@@ -28,8 +28,17 @@ final class SidebarViewModel: ObservableObject {
         var flat: [TOCItem] = []
         collectHeadings(markup: document, into: &flat)
         tocItems = buildHierarchy(from: flat)
+        for item in tocItems {
+            print("ROOT: \(item.title) — children: \(item.children.count)")
+        }
     }
 
+    /// Nest a flat list of headings (e.g. from the JS renderer) into a tree,
+    /// preserving each item's existing anchor/id.
+    func setTOCFromFlat(_ flat: [TOCItem]) {
+        tocItems = buildHierarchy(from: flat)
+    }
+    
     private func collectHeadings(markup: some Markup, into items: inout [TOCItem]) {
         for child in markup.children {
             if let heading = child as? Heading {
@@ -44,34 +53,30 @@ final class SidebarViewModel: ObservableObject {
 
     /// Build a tree from a flat heading list (H1 > H2 > H3...)
     private func buildHierarchy(from flat: [TOCItem]) -> [TOCItem] {
-        var result: [TOCItem] = []
-        var stack: [TOCItem] = []
+        var roots: [TOCItem] = []
+        // index path into the tree pointing at the current parent chain
+        var stack: [(level: Int, id: UUID)] = []
 
-        for item in flat {
-            let node = item
-            // Pop stack until we find a parent with lower level number
-            while let last = stack.last, last.level >= item.level {
-                stack.removeLast()
-            }
-
-            if stack.isEmpty {
-                result.append(node)
-                stack.append(node)
+        func appendChild(_ child: TOCItem, to nodes: inout [TOCItem], path: ArraySlice<UUID>) {
+            if let firstID = path.first {
+                if let idx = nodes.firstIndex(where: { $0.id == firstID }) {
+                    appendChild(child, to: &nodes[idx].children, path: path.dropFirst())
+                }
             } else {
-                // Add as child of last stack item
-                // Because TOCItem is a value type we must update by index
-                appendChild(node, toStack: &stack, result: &result)
+                nodes.append(child)
             }
         }
 
-        return result
-    }
+        for item in flat {
+            while let last = stack.last, last.level >= item.level {
+                stack.removeLast()
+            }
+            let parentPath = stack.map(\.id)[...]
+            appendChild(item, to: &roots, path: parentPath)
+            stack.append((level: item.level, id: item.id))
+        }
 
-    private func appendChild(_ child: TOCItem, toStack stack: inout [TOCItem], result: inout [TOCItem]) {
-        // Walk back through result/stack to attach child to correct parent
-        // For simplicity, store flat list with indentation level — hierarchy is visual only
-        stack.append(child)
-        result.append(child)
+        return roots
     }
 
     private func slugify(_ text: String) -> String {

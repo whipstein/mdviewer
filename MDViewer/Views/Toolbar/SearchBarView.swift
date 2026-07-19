@@ -6,6 +6,8 @@ struct SearchBarView: View {
     @Binding var isVisible: Bool
     weak var webView: WKWebView?
 
+    @FocusState private var isFocused: Bool          // ← 1
+
     var body: some View {
         HStack(spacing: 8) {
             Image(systemName: "magnifyingglass")
@@ -13,6 +15,7 @@ struct SearchBarView: View {
 
             TextField("Search", text: $searchText)
                 .textFieldStyle(.plain)
+                .focused($isFocused)                 // ← 2
                 .onSubmit { performSearch() }
 
             if !searchText.isEmpty {
@@ -40,6 +43,7 @@ struct SearchBarView: View {
         .onChange(of: searchText) { _, _ in
             performSearch()
         }
+        .onAppear { isFocused = true }               // ← 3
     }
 
     private func performSearch() {

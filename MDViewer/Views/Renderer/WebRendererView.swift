@@ -13,13 +13,29 @@ final class MDWebView: WKWebView {
 
         menu.addItem(.separator())
 
-        let expandItem = NSMenuItem(title: "Expand All Sections", action: #selector(handleExpandAll), keyEquivalent: "")
+        let expandItem = NSMenuItem(title: "Expand This Section", action: #selector(expandThisSection), keyEquivalent: "")
         expandItem.target = self
         menu.addItem(expandItem)
 
-        let collapseItem = NSMenuItem(title: "Collapse All Sections", action: #selector(handleCollapseAll), keyEquivalent: "")
+        let collapseItem = NSMenuItem(title: "Collapse This Section", action: #selector(collapseThisSection), keyEquivalent: "")
         collapseItem.target = self
         menu.addItem(collapseItem)
+
+        let expandItems = NSMenuItem(title: "Expand All Sections", action: #selector(handleExpandAll), keyEquivalent: "")
+        expandItems.target = self
+        menu.addItem(expandItems)
+
+        let collapseItems = NSMenuItem(title: "Collapse All Sections", action: #selector(handleCollapseAll), keyEquivalent: "")
+        collapseItems.target = self
+        menu.addItem(collapseItems)
+    }
+
+    @objc private func expandThisSection() {
+        evaluateJavaScript("MDViewer.expandSection(MDViewer._lastContextAnchor)", completionHandler: nil)
+    }
+
+    @objc private func collapseThisSection() {
+        evaluateJavaScript("MDViewer.collapseSection(MDViewer._lastContextAnchor)", completionHandler: nil)
     }
 
     @objc private func handleExpandAll() {
@@ -143,7 +159,7 @@ struct WebRendererView: NSViewRepresentable {
                 items.append(TOCItem(level: level, title: title, anchor: anchor))
             }
             Task { @MainActor in
-                self.sidebarVM.tocItems = items
+                self.sidebarVM.setTOCFromFlat(items)
             }
         }
 

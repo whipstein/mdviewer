@@ -31,7 +31,7 @@ struct MDViewerApp: App {
                 .keyboardShortcut("s", modifiers: .command)
             }
 
-            CommandMenu("View") {
+            CommandMenu("Document") {
                 Button("Toggle Editor Mode") {
                     NotificationCenter.default.post(name: .toggleEditorMode, object: nil)
                 }

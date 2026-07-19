@@ -25,6 +25,14 @@ struct MainToolbar: ToolbarContent {
                 Label("Editor", systemImage: "pencil")
             }
 
+            // Search button
+            Button {
+                NotificationCenter.default.post(name: .showSearchBar, object: nil)
+            } label: {
+                Label("Find", systemImage: "magnifyingglass")
+            }
+            .help("Find (⌘F)")
+
             // Save button
             Button {
                 NotificationCenter.default.post(name: .saveFile, object: nil)

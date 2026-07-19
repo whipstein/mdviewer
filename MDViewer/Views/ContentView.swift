@@ -15,6 +15,8 @@ struct ContentView: View {
     @AppStorage("isSidebarVisible") private var isSidebarVisible: Bool = true
     @AppStorage("isEditorMode") private var isEditorMode: Bool = false
 
+    @State private var editorWidth: Double? = nil
+    
     private func drainPendingOpens() {
         let urls = PendingOpen.shared.urls
         PendingOpen.shared.urls.removeAll()
@@ -30,23 +32,41 @@ struct ContentView: View {
                     .frame(minWidth: 180, idealWidth: sidebarWidth, maxWidth: 400)
             },
             detail: {
-                Group {
-                    if documentVM.text.isEmpty, documentVM.fileURL == nil {
-                        WelcomeView(documentVM: documentVM)
-                    } else {
-                        HSplitView {
-                            // エディタペイン: isEditorMode時のみ表示
-                            if isEditorMode {
-                                MarkdownEditorView(documentVM: documentVM)
-                                    .frame(minWidth: 250)
+                GeometryReader { geo in
+                    Group {
+                        if documentVM.text.isEmpty, documentVM.fileURL == nil {
+                            WelcomeView(documentVM: documentVM)
+                        } else {
+                            let total = geo.size.width
+                            let editorW = editorWidth ?? total / 2
+                            HStack(spacing: 0) {
+                                // Preview — ALWAYS mounted, single instance, never moves between branches
+                                MarkdownRenderView(documentVM: documentVM, renderVM: renderVM, sidebarVM: sidebarVM)
+                                    .frame(minWidth: 250, maxWidth: .infinity)
+
+                                if isEditorMode {
+                                    // Divider
+                                    Rectangle()
+                                        .fill(Color.gray.opacity(0.3))
+                                        .frame(width: 6)
+                                        .onHover { inside in
+                                            if inside { NSCursor.resizeLeftRight.push() } else { NSCursor.pop() }
+                                        }
+                                        .gesture(
+                                            DragGesture()
+                                                .onChanged { value in
+                                                    let newEditorW = editorW - value.translation.width
+                                                    editorWidth = min(max(250, newEditorW), total - 250)
+                                                }
+                                        )
+
+                                    MarkdownEditorView(documentVM: documentVM)
+                                        .frame(width: max(250, editorW))
+                                }
                             }
-                            // プレビューペイン: 常にマウントしておく（破棄しない）
-                            MarkdownRenderView(
-                                documentVM: documentVM,
-                                renderVM: renderVM,
-                                sidebarVM: sidebarVM
-                            )
-                            .frame(minWidth: 250)
+                            .onChange(of: isEditorMode) { _, on in
+                                if on { editorWidth = total / 2 }
+                            }
                         }
                     }
                 }
