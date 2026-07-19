@@ -5,8 +5,8 @@ struct MDViewerApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
     var body: some Scene {
-        WindowGroup(for: URL.self) { $fileURL in
-            ContentView(fileURL: fileURL)
+        DocumentGroup(viewing: MarkdownDocument.self) { file in
+            ContentView(document: file.document, fileURL: file.fileURL)
         }
         .windowStyle(.titleBar)
         .windowToolbarStyle(.unified(showsTitle: true))

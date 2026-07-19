@@ -2,6 +2,7 @@ import AppKit
 import SwiftUI
 
 struct ContentView: View {
+    let document: MarkdownDocument
     var fileURL: URL?
 
     @Environment(\.openWindow) private var openWindow
@@ -81,6 +82,7 @@ struct ContentView: View {
             drainPendingOpens()
         }
         .onAppear {
+            print("DOC-DEBUG fileURL = \(String(describing: fileURL)), text length = \(document.text.count)")
             if let url = fileURL {
                 documentVM.load(url: url)
             }
