@@ -134,13 +134,7 @@ struct WebRendererView: NSViewRepresentable {
                 guard let urlString = message.body as? String,
                       let url = URL(string: urlString) else { break }
                 Task { @MainActor in
-                    if url.scheme == "file",
-                       ["md", "markdown"].contains(url.pathExtension.lowercased())
-                    {
-                        NotificationCenter.default.post(name: .openLocalDocument, object: url)
-                    } else {
-                        NSWorkspace.shared.open(url)
-                    }
+                    NSWorkspace.shared.open(url)   // .md files open in MDViewer via the document system; http/https/mailto in default app
                 }
             default:
                 break

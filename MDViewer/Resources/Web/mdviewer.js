@@ -468,7 +468,6 @@
         }
     });
 
-    // Link click: fragment links scroll in-page; all others handled by Swift
     document.addEventListener('click', function (e) {
         const link = e.target.closest('a[href]');
         if (!link) return;
@@ -476,7 +475,12 @@
         const href = link.getAttribute('href');
         if (!href) return;
 
-        if (href.startsWith('#')) return;
+        if (href.startsWith('#')) {
+            e.preventDefault();
+            const anchor = decodeURIComponent(href.slice(1));
+            window.MDViewer.scrollToAnchor(anchor);   // expands collapsed ancestors, then scrolls
+            return;
+        }
 
         e.preventDefault();
         if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.linkClicked) {

@@ -82,7 +82,7 @@ struct ContentView: View {
             drainPendingOpens()
         }
         .onAppear {
-            print("DOC-DEBUG fileURL = \(String(describing: fileURL)), text length = \(document.text.count)")
+            print("IMG-DEBUG fileURL = \(String(describing: fileURL))")
             if let url = fileURL {
                 documentVM.load(url: url)
             }
