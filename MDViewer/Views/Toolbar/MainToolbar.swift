@@ -5,7 +5,9 @@ struct MainToolbar: ToolbarContent {
     @ObservedObject var documentVM: DocumentViewModel
     @ObservedObject var renderVM: RenderViewModel
     @ObservedObject var exportVM: ExportViewModel
-    var isEditorMode: Bool
+//    var isEditorMode: Bool
+    // In MainToolbar: change `var isEditorMode: Bool` to:
+    @Binding var isEditorMode: Bool
 
     var body: some ToolbarContent {
         ToolbarItem(placement: .navigation) {
@@ -18,13 +20,15 @@ struct MainToolbar: ToolbarContent {
         }
 
         ToolbarItemGroup(placement: .primaryAction) {
-            // Editor toggle button
+            // The Editor button:
             Button {
-                NotificationCenter.default.post(name: .toggleEditorMode, object: nil)
+                isEditorMode.toggle()
             } label: {
                 Label("Editor", systemImage: "pencil")
             }
-
+            .foregroundColor(isEditorMode ? .accentColor : .primary)
+            .help("Toggle Editor Mode (⌘E)")
+            
             // Search button
             Button {
                 NotificationCenter.default.post(name: .showSearchBar, object: nil)

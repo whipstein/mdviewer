@@ -14,7 +14,7 @@ struct ContentView: View {
 
     @AppStorage("sidebarWidth") private var sidebarWidth: Double = 240
     @AppStorage("isSidebarVisible") private var isSidebarVisible: Bool = true
-    @AppStorage("isEditorMode") private var isEditorMode: Bool = false
+    @State private var isEditorMode: Bool = false
 
     @State private var editorWidth: Double? = nil
     
@@ -76,7 +76,7 @@ struct ContentView: View {
         .background(WindowCloseInterceptor(documentVM: documentVM))
         .toolbar {
             MainToolbar(documentVM: documentVM, renderVM: renderVM,
-                        exportVM: exportVM, isEditorMode: isEditorMode)
+                        exportVM: exportVM, isEditorMode: $isEditorMode)
         }
         .onReceive(NotificationCenter.default.publisher(for: .pendingOpenChanged)) { _ in
             drainPendingOpens()
@@ -94,9 +94,10 @@ struct ContentView: View {
         .onReceive(NotificationCenter.default.publisher(for: .saveFile)) { _ in
             documentVM.save()
         }
-        .onReceive(NotificationCenter.default.publisher(for: .toggleEditorMode)) { _ in
-            isEditorMode.toggle()
-        }
+        // Remove: .onReceive(NotificationCenter.default.publisher(for: .toggleEditorMode)) { _ in isEditorMode.toggle() }
+
+        // Add this modifier to the body (e.g. near .toolbar):
+        .focusedSceneValue(\.editorToggle, EditorToggleAction(toggle: { isEditorMode.toggle() }))
         .onReceive(NotificationCenter.default.publisher(for: .toggleSidebar)) { _ in
             // NavigationSplitView handles its own sidebar toggle
         }

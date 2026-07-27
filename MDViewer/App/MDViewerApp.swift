@@ -1,5 +1,32 @@
 import SwiftUI
 
+struct EditorToggleAction {
+    let toggle: () -> Void
+}
+
+struct EditorToggleKey: FocusedValueKey {
+    typealias Value = EditorToggleAction
+}
+
+extension FocusedValues {
+    var editorToggle: EditorToggleAction? {
+        get { self[EditorToggleKey.self] }
+        set { self[EditorToggleKey.self] = newValue }
+    }
+}
+
+struct FocusedEditorToggleButton: View {
+    @FocusedValue(\.editorToggle) private var editorToggle
+
+    var body: some View {
+        Button("Toggle Editor Mode") {
+            editorToggle?.toggle()
+        }
+        .keyboardShortcut("e", modifiers: .command)
+        .disabled(editorToggle == nil)
+    }
+}
+
 @main
 struct MDViewerApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
@@ -32,10 +59,7 @@ struct MDViewerApp: App {
             }
 
             CommandMenu("Document") {
-                Button("Toggle Editor Mode") {
-                    NotificationCenter.default.post(name: .toggleEditorMode, object: nil)
-                }
-                .keyboardShortcut("e", modifiers: .command)
+                FocusedEditorToggleButton()
 
                 Divider()
 
