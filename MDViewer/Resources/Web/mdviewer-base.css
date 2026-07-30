@@ -190,7 +190,7 @@ body.dark-theme .shiki, body.dark-theme .shiki span {
 .code-lang-label {
     position: absolute;
     top: 8px;
-    right: 12px;
+    right: 44px;
     font-family: var(--code-font);
     font-size: 0.72em;
     color: #888;
@@ -198,7 +198,6 @@ body.dark-theme .shiki, body.dark-theme .shiki span {
     pointer-events: none;
     z-index: 1;
 }
-
 /* Heading anchor highlight used by TOC scroll */
 .heading-anchor-target {
     animation: highlight-fade 2s ease-out;
@@ -323,6 +322,44 @@ body.dark-theme .shiki, body.dark-theme .shiki span {
 }
 .collapsible-section.collapsed > .collapsible-body {
     display: none;
+}
+.code-copy-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    color: var(--text-color, #24292e);
+    background: var(--code-copy-bg, rgba(255,255,255,0.75));
+    border: 1px solid var(--border-color, #d0d7de);
+    border-radius: 6px;
+    cursor: pointer;
+    opacity: 0.6;                    /* always visible, slightly dimmed */
+    transition: opacity 0.12s ease, background 0.12s ease;
+    z-index: 2;
+    backdrop-filter: blur(2px);
+}
+.code-copy-btn:hover {
+    opacity: 1;
+    background: var(--code-copy-bg-hover, rgba(255,255,255,0.95));
+}
+.code-copy-btn.copied {
+    color: #1a7f37;
+    border-color: #1a7f37;
+    opacity: 1;
+}
+body.dark-theme .code-copy-btn {
+    color: #c9d1d9;
+    background: rgba(40,40,40,0.75);
+    border-color: #444;
+}
+body.dark-theme .code-copy-btn.copied {
+    color: #3fb950;
+    border-color: #3fb950;
 }
 
 /* Always show full content when printing/exporting, regardless of collapse state */

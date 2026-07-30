@@ -203,6 +203,46 @@
 
         return svg;
     }
+
+    function addCopyButtons(root) {
+        const COPY_SVG = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+        const CHECK_SVG = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+
+        const blocks = root.querySelectorAll('.code-block-wrapper, pre');
+        blocks.forEach(function (block) {
+            if (block.tagName === 'PRE' && block.closest('.code-block-wrapper')) { return; }
+            if (block.querySelector(':scope > .code-copy-btn')) { return; }
+
+            const codeEl = block.querySelector('code') || block.querySelector('pre');
+            if (!codeEl) { return; }
+
+            block.style.position = block.style.position || 'relative';
+
+            const btn = document.createElement('button');
+            btn.className = 'code-copy-btn';
+            btn.type = 'button';
+            btn.setAttribute('aria-label', 'Copy code');
+            btn.innerHTML = COPY_SVG;
+
+            btn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                const text = codeEl.innerText;
+                navigator.clipboard.writeText(text).then(function () {
+                    btn.innerHTML = CHECK_SVG;
+                    btn.classList.add('copied');
+                    setTimeout(function () {
+                        btn.innerHTML = COPY_SVG;
+                        btn.classList.remove('copied');
+                    }, 1500);
+                }).catch(function () {
+                    btn.setAttribute('aria-label', 'Copy failed');
+                    setTimeout(function () { btn.setAttribute('aria-label', 'Copy code'); }, 1500);
+                });
+            });
+
+            block.appendChild(btn);
+        });
+    }
     
     // Rewrite relative image sources (and other local resources) to the
     // mdviewer-local:// scheme so the Swift scheme handler can serve them.
@@ -337,6 +377,7 @@
                 // Resolve relative image paths against the Markdown file's directory
                 rewriteLocalResources(contentEl);
                 wrapCollapsibleSections(contentEl);
+                addCopyButtons(contentEl);
                 
                 // Render Mermaid diagrams
                 if (typeof mermaid !== 'undefined') {
