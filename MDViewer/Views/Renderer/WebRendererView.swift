@@ -1,5 +1,6 @@
 import SwiftUI
 import WebKit
+import OSLog
 
 extension Notification.Name {
     static let openLocalDocument = Notification.Name("MDViewer.openLocalDocument")
@@ -131,10 +132,17 @@ struct WebRendererView: NSViewRepresentable {
                 let url = message.body as? String ?? ""
                 Task { @MainActor in self.renderVM.hoveredURL = url }
             case "linkClicked":
-                guard let urlString = message.body as? String,
-                      let url = URL(string: urlString) else { break }
+                guard let urlString = message.body as? String else { break }
                 Task { @MainActor in
-                    NSWorkspace.shared.open(url)   // .md files open in MDViewer via the document system; http/https/mailto in default app
+                    if urlString.hasPrefix("mdviewer-relative:") {
+                        let rel = String(urlString.dropFirst("mdviewer-relative:".count))
+                        if let baseDir = self.schemeHandler.baseDirectory {
+                            let resolved = baseDir.appendingPathComponent(rel).standardized
+                            NSWorkspace.shared.open(resolved)
+                        }
+                    } else if let url = URL(string: urlString) {
+                        NSWorkspace.shared.open(url)
+                    }
                 }
             default:
                 break

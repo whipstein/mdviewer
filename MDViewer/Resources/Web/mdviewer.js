@@ -513,20 +513,27 @@
         const link = e.target.closest('a[href]');
         if (!link) return;
 
-        const href = link.getAttribute('href');
-        if (!href) return;
+        const rawHref = link.getAttribute('href');
+        if (!rawHref) return;
 
-        if (href.startsWith('#')) {
+        // In-document anchor
+        if (rawHref.startsWith('#')) {
             e.preventDefault();
-            const anchor = decodeURIComponent(href.slice(1));
-            window.MDViewer.scrollToAnchor(anchor);   // expands collapsed ancestors, then scrolls
+            window.MDViewer.scrollToAnchor(decodeURIComponent(rawHref.slice(1)));
             return;
         }
 
         e.preventDefault();
-        if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.linkClicked) {
-            window.webkit.messageHandlers.linkClicked.postMessage(link.href);
+
+        // Absolute external URL (http, https, mailto, etc.) — pass as-is
+        if (/^[a-z][a-z0-9+.-]*:/i.test(rawHref)) {
+            window.webkit.messageHandlers.linkClicked.postMessage(rawHref);
+            return;
         }
+
+        // Relative link — resolve against the MARKDOWN file's directory, not the renderer.
+        // Post the raw relative path; Swift resolves it against the document dir.
+        window.webkit.messageHandlers.linkClicked.postMessage('mdviewer-relative:' + rawHref);
     });
 
     document.addEventListener('contextmenu', function (e) {
