@@ -19,6 +19,15 @@ struct MainToolbar: ToolbarContent {
             .help("Open Markdown File (⌘O)")
         }
 
+        ToolbarItem(placement: .navigation) {
+            Button {
+                NotificationCenter.default.post(name: .reloadFile, object: nil)
+            } label: {
+                Label("Reload", systemImage: "arrow.clockwise")
+            }
+            .help("Reload File (⌘R)")
+        }
+        
         ToolbarItemGroup(placement: .primaryAction) {
             // The Editor button:
             Button {
