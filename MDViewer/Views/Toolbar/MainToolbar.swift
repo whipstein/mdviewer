@@ -5,14 +5,14 @@ struct MainToolbar: ToolbarContent {
     @ObservedObject var documentVM: DocumentViewModel
     @ObservedObject var renderVM: RenderViewModel
     @ObservedObject var exportVM: ExportViewModel
-//    var isEditorMode: Bool
-    // In MainToolbar: change `var isEditorMode: Bool` to:
     @Binding var isEditorMode: Bool
 
     var body: some ToolbarContent {
         ToolbarItem(placement: .navigation) {
             Button {
-                if let url = FilePicker.pickMarkdownURL() { openWindow(value: url) }
+                if let url = FilePicker.pickMarkdownURL() {
+                    NSWorkspace.shared.open(url)
+                }
             } label: {
                 Label("Open", systemImage: "folder")
             }

@@ -111,8 +111,6 @@ struct MDViewerApp: App {
 }
 
 struct OpenFileCommand: View {
-    @Environment(\.openWindow) private var openWindow
-
     var body: some View {
         Button("Open…") {
             let panel = NSOpenPanel()
@@ -120,7 +118,7 @@ struct OpenFileCommand: View {
             panel.allowsMultipleSelection = false
             panel.canChooseDirectories = false
             if panel.runModal() == .OK, let url = panel.url {
-                openWindow(value: url)
+                NSWorkspace.shared.open(url)
             }
         }
         .keyboardShortcut("o", modifiers: .command)
