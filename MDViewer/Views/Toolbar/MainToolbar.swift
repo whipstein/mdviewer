@@ -40,7 +40,7 @@ struct MainToolbar: ToolbarContent {
             
             // Search button
             Button {
-                NotificationCenter.default.post(name: .showSearchBar, object: nil)
+                renderVM.isSearchVisible = true
             } label: {
                 Label("Find", systemImage: "magnifyingglass")
             }

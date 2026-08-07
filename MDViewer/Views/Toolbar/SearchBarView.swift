@@ -1,12 +1,11 @@
 import SwiftUI
-import WebKit
 
 struct SearchBarView: View {
     @Binding var searchText: String
     @Binding var isVisible: Bool
-    weak var webView: WKWebView?
+    @ObservedObject var renderVM: RenderViewModel
 
-    @FocusState private var isFocused: Bool          // ← 1
+    @FocusState private var isFocused: Bool
 
     var body: some View {
         HStack(spacing: 8) {
@@ -15,8 +14,36 @@ struct SearchBarView: View {
 
             TextField("Search", text: $searchText)
                 .textFieldStyle(.plain)
-                .focused($isFocused)                 // ← 2
-                .onSubmit { performSearch() }
+                .focused($isFocused)
+                .onSubmit { renderVM.searchNext() }
+
+            // Match count indicator: "3/12", or "0/0" when nothing matches.
+            if !searchText.isEmpty {
+                Text("\(renderVM.searchCurrentIndex)/\(renderVM.searchMatchCount)")
+                    .font(.caption)
+                    .monospacedDigit()
+                    .foregroundColor(renderVM.searchMatchCount == 0 ? .red : .secondary)
+            }
+
+            Button {
+                renderVM.searchPrevious()
+            } label: {
+                Image(systemName: "chevron.up")
+            }
+            .buttonStyle(.plain)
+            .disabled(renderVM.searchMatchCount == 0)
+            .keyboardShortcut("g", modifiers: [.command, .shift])
+            .help("Previous Match (⇧⌘G)")
+
+            Button {
+                renderVM.searchNext()
+            } label: {
+                Image(systemName: "chevron.down")
+            }
+            .buttonStyle(.plain)
+            .disabled(renderVM.searchMatchCount == 0)
+            .keyboardShortcut("g", modifiers: .command)
+            .help("Next Match (⌘G)")
 
             if !searchText.isEmpty {
                 Button {
@@ -40,20 +67,17 @@ struct SearchBarView: View {
         .shadow(radius: 4)
         .padding(.horizontal, 16)
         .padding(.top, 8)
-        .onChange(of: searchText) { _, _ in
-            performSearch()
+        .onChange(of: searchText) { _, newValue in
+            renderVM.search(newValue)
         }
-        .onAppear { isFocused = true }               // ← 3
-    }
-
-    private func performSearch() {
-        guard let webView else { return }
-        // Use WKFindConfiguration-based search (available macOS 13+)
-        if !searchText.isEmpty {
-            let config = WKFindConfiguration()
-            config.caseSensitive = false
-            config.wraps = true
-            webView.find(searchText, configuration: config) { _ in }
+        .onAppear {
+            // Defer focus a runloop tick so the field is in the responder chain;
+            // setting it synchronously in onAppear can be dropped.
+            DispatchQueue.main.async { isFocused = true }
+            if !searchText.isEmpty { renderVM.search(searchText) }
+        }
+        .onDisappear {
+            renderVM.clearSearch()
         }
     }
 }

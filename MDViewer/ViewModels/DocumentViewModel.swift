@@ -49,8 +49,36 @@ final class DocumentViewModel: ObservableObject {
         isLoading = false
     }
 
-    func reload() {
+    /// Reload the file from disk.
+    /// - Parameter confirmIfDirty: When true (manual reload) the user is asked before
+    ///   discarding unsaved edits. When false (file-watcher auto-reload) unsaved edits
+    ///   are never silently clobbered — the reload is skipped instead.
+    func reload(confirmIfDirty: Bool = false) {
         guard let url = fileURL else { return }
+
+        if isDirty {
+            guard confirmIfDirty else { return }
+
+            let alert = NSAlert()
+            alert.messageText = NSLocalizedString("unsaved_changes_title", comment: "")
+            alert.informativeText = NSLocalizedString("unsaved_changes_message", comment: "")
+            alert.addButton(withTitle: NSLocalizedString("save_button", comment: ""))
+            alert.addButton(withTitle: NSLocalizedString("discard_button", comment: ""))
+            alert.addButton(withTitle: NSLocalizedString("cancel_button", comment: ""))
+            alert.alertStyle = .warning
+
+            switch alert.runModal() {
+            case .alertFirstButtonReturn:
+                // Save keeps the current edits; disk already matches, nothing to reload.
+                save()
+                return
+            case .alertSecondButtonReturn:
+                break // Discard and fall through to reload from disk.
+            default:
+                return // Cancel.
+            }
+        }
+
         do {
             let contents = try String(contentsOf: url, encoding: .utf8)
             isDirty = false

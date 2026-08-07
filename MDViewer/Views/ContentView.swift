@@ -61,7 +61,7 @@ struct ContentView: View {
                                                 }
                                         )
 
-                                    MarkdownEditorView(documentVM: documentVM)
+                                    MarkdownEditorView(documentVM: documentVM, renderVM: renderVM)
                                         .frame(width: max(250, editorW))
                                 }
                             }
@@ -89,7 +89,7 @@ struct ContentView: View {
             drainPendingOpens()
         }
         .onReceive(NotificationCenter.default.publisher(for: .reloadFile)) { _ in
-            documentVM.reload()
+            documentVM.reload(confirmIfDirty: true)
         }
         .onReceive(NotificationCenter.default.publisher(for: .saveFile)) { _ in
             documentVM.save()
@@ -98,6 +98,7 @@ struct ContentView: View {
 
         // Add this modifier to the body (e.g. near .toolbar):
         .focusedSceneValue(\.editorToggle, EditorToggleAction(toggle: { isEditorMode.toggle() }))
+        .focusedSceneValue(\.showSearch, ShowSearchAction(show: { renderVM.isSearchVisible = true }))
         .onReceive(NotificationCenter.default.publisher(for: .toggleSidebar)) { _ in
             // NavigationSplitView handles its own sidebar toggle
         }

@@ -64,6 +64,8 @@ struct WebRendererView: NSViewRepresentable {
         contentController.add(context.coordinator, name: "headingsExtracted")
         contentController.add(context.coordinator, name: "renderComplete")
         contentController.add(context.coordinator, name: "scrollPositionChanged")
+        contentController.add(context.coordinator, name: "editorScrollToLine")
+        contentController.add(context.coordinator, name: "searchResult")
         contentController.add(context.coordinator, name: "linkHovered")
         contentController.add(context.coordinator, name: "linkClicked")
         config.userContentController = contentController
@@ -128,6 +130,14 @@ struct WebRendererView: NSViewRepresentable {
                 handleRenderComplete()
             case "scrollPositionChanged":
                 break
+            case "editorScrollToLine":
+                let line = (message.body as? Int) ?? (message.body as? NSNumber)?.intValue ?? 0
+                Task { @MainActor in self.renderVM.requestEditorScroll(toLine: line) }
+            case "searchResult":
+                guard let dict = message.body as? [String: Any] else { break }
+                let count = (dict["count"] as? Int) ?? (dict["count"] as? NSNumber)?.intValue ?? 0
+                let current = (dict["current"] as? Int) ?? (dict["current"] as? NSNumber)?.intValue ?? 0
+                Task { @MainActor in self.renderVM.updateSearchResult(count: count, current: current) }
             case "linkHovered":
                 let url = message.body as? String ?? ""
                 Task { @MainActor in self.renderVM.hoveredURL = url }

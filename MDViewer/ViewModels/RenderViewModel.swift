@@ -8,6 +8,52 @@ final class RenderViewModel: ObservableObject {
     @Published var fontSize: Double = 16
     @Published var hoveredURL: String = ""
 
+    /// A request from the preview to move the editor to a source line (click-to-locate).
+    /// The `id` lets the editor detect a new request even if the same line is clicked twice.
+    struct EditorScrollRequest: Equatable {
+        let line: Int
+        let id: Int
+    }
+    @Published var editorScrollRequest: EditorScrollRequest?
+    private var editorScrollCounter = 0
+
+    func requestEditorScroll(toLine line: Int) {
+        editorScrollCounter += 1
+        editorScrollRequest = EditorScrollRequest(line: line, id: editorScrollCounter)
+    }
+
+    /// Whether the search bar is visible in this window. Per-window state so a
+    /// Find command only affects the focused document, not every open window.
+    @Published var isSearchVisible: Bool = false
+
+    /// In-page search results reported by the renderer: total matches and the
+    /// 1-based index of the current match (0 when there are none).
+    @Published var searchMatchCount: Int = 0
+    @Published var searchCurrentIndex: Int = 0
+
+    func search(_ query: String) {
+        webView?.evaluateJavaScript("MDViewer.search('\(escapeForJS(query))')", completionHandler: nil)
+    }
+
+    func searchNext() {
+        webView?.evaluateJavaScript("MDViewer.searchNext()", completionHandler: nil)
+    }
+
+    func searchPrevious() {
+        webView?.evaluateJavaScript("MDViewer.searchPrev()", completionHandler: nil)
+    }
+
+    func clearSearch() {
+        webView?.evaluateJavaScript("MDViewer.clearSearch()", completionHandler: nil)
+        searchMatchCount = 0
+        searchCurrentIndex = 0
+    }
+
+    func updateSearchResult(count: Int, current: Int) {
+        searchMatchCount = count
+        searchCurrentIndex = current
+    }
+
     @AppStorage("selectedThemeId") private var storedThemeId: String = MarkdownTheme.githubLight.id
     @AppStorage("fontSize") private var storedFontSize: Double = 16
     @AppStorage("pdfPageSize") private var storedPDFPageSize: String = PDFPageSize.a4.rawValue

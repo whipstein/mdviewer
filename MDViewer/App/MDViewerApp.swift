@@ -15,6 +15,33 @@ extension FocusedValues {
     }
 }
 
+struct ShowSearchAction {
+    let show: () -> Void
+}
+
+struct ShowSearchKey: FocusedValueKey {
+    typealias Value = ShowSearchAction
+}
+
+extension FocusedValues {
+    var showSearch: ShowSearchAction? {
+        get { self[ShowSearchKey.self] }
+        set { self[ShowSearchKey.self] = newValue }
+    }
+}
+
+struct FocusedFindButton: View {
+    @FocusedValue(\.showSearch) private var showSearch
+
+    var body: some View {
+        Button("Find…") {
+            showSearch?.show()
+        }
+        .keyboardShortcut("f", modifiers: .command)
+        .disabled(showSearch == nil)
+    }
+}
+
 struct FocusedEditorToggleButton: View {
     @FocusedValue(\.editorToggle) private var editorToggle
 
@@ -68,10 +95,7 @@ struct MDViewerApp: App {
                 }
                 .keyboardShortcut("s", modifiers: [.command, .shift])
 
-                Button("Find…") {
-                    NotificationCenter.default.post(name: .showSearchBar, object: nil)
-                }
-                .keyboardShortcut("f", modifiers: .command)
+                FocusedFindButton()
 
                 Divider()
 

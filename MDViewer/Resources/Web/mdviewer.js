@@ -306,7 +306,119 @@
         apply(section);
         saveCollapsedSet(set);
     }
-    
+
+    // -- In-page search -----------------------------------------------------
+    // Custom search (instead of WKWebView.find) so we can highlight every match
+    // across the whole document — including inside collapsed sections — report a
+    // match count/index, and expand collapsed sections when navigating into them.
+    let searchState = { query: '', matches: [], current: -1 };
+
+    function reportSearchResult() {
+        if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.searchResult) {
+            window.webkit.messageHandlers.searchResult.postMessage({
+                count: searchState.matches.length,
+                current: searchState.matches.length ? searchState.current + 1 : 0
+            });
+        }
+    }
+
+    function clearSearchHighlights() {
+        const content = document.getElementById('content');
+        if (content) {
+            const marks = content.querySelectorAll('mark.mdviewer-search-hit');
+            marks.forEach(function (mark) {
+                const parent = mark.parentNode;
+                if (!parent) return;
+                parent.replaceChild(document.createTextNode(mark.textContent), mark);
+                parent.normalize();
+            });
+        }
+        searchState = { query: '', matches: [], current: -1 };
+    }
+
+    function expandCollapsedAncestors(el) {
+        let node = el.parentElement;
+        while (node) {
+            if (node.classList && node.classList.contains('collapsible-section') && node.classList.contains('collapsed')) {
+                node.classList.remove('collapsed');
+                const btn = node.querySelector(':scope > .collapsible-header > .collapsible-toggle');
+                if (btn) {
+                    btn.setAttribute('aria-expanded', 'true');
+                    btn.setAttribute('aria-label', 'Collapse section');
+                }
+            }
+            node = node.parentElement;
+        }
+    }
+
+    function setCurrentMatch(index) {
+        const matches = searchState.matches;
+        if (!matches.length) { reportSearchResult(); return; }
+
+        if (searchState.current >= 0 && searchState.current < matches.length) {
+            matches[searchState.current].classList.remove('current');
+        }
+        if (index < 0) index = matches.length - 1;
+        if (index >= matches.length) index = 0;
+        searchState.current = index;
+
+        const mark = matches[index];
+        mark.classList.add('current');
+        expandCollapsedAncestors(mark);
+        mark.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        reportSearchResult();
+    }
+
+    function runSearch(query) {
+        clearSearchHighlights();
+        const content = document.getElementById('content');
+        if (!query || !content) { reportSearchResult(); return; }
+
+        searchState.query = query;
+        const needle = query.toLowerCase();
+
+        const walker = document.createTreeWalker(content, NodeFilter.SHOW_TEXT, {
+            acceptNode: function (node) {
+                if (!node.nodeValue) return NodeFilter.FILTER_REJECT;
+                const tag = node.parentNode ? node.parentNode.nodeName : '';
+                if (tag === 'SCRIPT' || tag === 'STYLE') return NodeFilter.FILTER_REJECT;
+                return NodeFilter.FILTER_ACCEPT;
+            }
+        });
+
+        const textNodes = [];
+        let node;
+        while ((node = walker.nextNode())) textNodes.push(node);
+
+        textNodes.forEach(function (textNode) {
+            const text = textNode.nodeValue;
+            const lower = text.toLowerCase();
+            let idx = lower.indexOf(needle);
+            if (idx === -1) return;
+
+            const frag = document.createDocumentFragment();
+            let last = 0;
+            while (idx !== -1) {
+                if (idx > last) frag.appendChild(document.createTextNode(text.slice(last, idx)));
+                const mark = document.createElement('mark');
+                mark.className = 'mdviewer-search-hit';
+                mark.textContent = text.slice(idx, idx + query.length);
+                frag.appendChild(mark);
+                searchState.matches.push(mark);
+                last = idx + query.length;
+                idx = lower.indexOf(needle, last);
+            }
+            if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+            textNode.parentNode.replaceChild(frag, textNode);
+        });
+
+        if (searchState.matches.length) {
+            setCurrentMatch(0);
+        } else {
+            reportSearchResult();
+        }
+    }
+
     // -- Public MDViewer API (called from Swift via evaluateJavaScript)
     window.MDViewer = {
 
@@ -338,21 +450,53 @@
                 // Pre-process math: protect $...$ from marked parsing
                 const mathBlocks = [];
                 let processed = markdown;
-                
-                processed = processed.replace(/\$\$([^$]+?)\$\$/gs, function (_, expr) {
+
+                // First, hide code from the math regex so shell/code like `echo $FOO`
+                // isn't misread as math. Code is restored before marked parses it, so it
+                // still renders (and highlights) normally.
+                const codeSpans = [];
+                processed = processed.replace(/```[\s\S]*?```|~~~[\s\S]*?~~~/g, function (match) {
+                    codeSpans.push(match);
+                    // Preserve line count so source-line mapping stays aligned.
+                    const newlines = (match.match(/\n/g) || []).length;
+                    return `CODESPAN_${codeSpans.length - 1}_END` + '\n'.repeat(newlines);
+                });
+                processed = processed.replace(/`[^`\n]+`/g, function (match) {
+                    codeSpans.push(match);
+                    return `CODESPAN_${codeSpans.length - 1}_END`;
+                });
+
+                processed = processed.replace(/\$\$([^$]+?)\$\$/gs, function (match, expr) {
                     const placeholder = `MATHBLOCK_${mathBlocks.length}_END`;
                     mathBlocks.push({ type: 'block', expr: expr.trim() });
-                    return placeholder;
+                    // Preserve the original line count so source-line mapping stays aligned.
+                    const newlines = (match.match(/\n/g) || []).length;
+                    return placeholder + '\n'.repeat(newlines);
                 });
-                
+
                 processed = processed.replace(/\$([^$\n]+?)\$/g, function (_, expr) {
                     const placeholder = `MATHINLINE_${mathBlocks.length}_END`;
                     mathBlocks.push({ type: 'inline', expr: expr.trim() });
                     return placeholder;
                 });
+
+                // Restore code now that math substitution is done.
+                processed = processed.replace(/CODESPAN_(\d+)_END/g, function (_, i) {
+                    return codeSpans[parseInt(i, 10)];
+                });
                 
                 let html = marked.parse(processed, { renderer: renderer });
-                
+
+                // Record the source line where each top-level block begins so a click
+                // in the preview can locate the matching line in the editor.
+                const blockLineStarts = [];
+                let lineCursor = 0;
+                marked.lexer(processed).forEach(function (token) {
+                    const start = lineCursor;
+                    lineCursor += ((token.raw || '').match(/\n/g) || []).length;
+                    if (token.type !== 'space') blockLineStarts.push(start);
+                });
+
                 // Restore math
                 if (typeof katex !== 'undefined') {
                     mathBlocks.forEach(function (m, i) {
@@ -373,7 +517,13 @@
                 
                 const contentEl = document.getElementById('content');
                 contentEl.innerHTML = html;
-                
+
+                // Tag each top-level block with its source line for click-to-locate.
+                const topChildren = contentEl.children;
+                for (let i = 0; i < topChildren.length && i < blockLineStarts.length; i++) {
+                    topChildren[i].setAttribute('data-source-line', blockLineStarts[i]);
+                }
+
                 // Resolve relative image paths against the Markdown file's directory
                 rewriteLocalResources(contentEl);
                 wrapCollapsibleSections(contentEl);
@@ -461,6 +611,12 @@
             }
         },
 
+        // In-page search API used by the search bar.
+        search: function (query) { runSearch(query); },
+        searchNext: function () { setCurrentMatch(searchState.current + 1); },
+        searchPrev: function () { setCurrentMatch(searchState.current - 1); },
+        clearSearch: function () { clearSearchHighlights(); reportSearchResult(); },
+
         collapseSection: function (anchor) { setSectionSubtree(sectionFromAnchor(anchor), true); },
         expandSection: function (anchor) { setSectionSubtree(sectionFromAnchor(anchor), false); },
 
@@ -493,6 +649,19 @@
                 });
             }
         }, 100);
+    });
+
+    // Click-to-locate: clicking rendered content moves the editor to the source line.
+    document.addEventListener('click', function (e) {
+        // Links and in-content buttons (e.g. copy) have their own behavior.
+        if (e.target.closest('a[href]') || e.target.closest('button')) return;
+        const block = e.target.closest('[data-source-line]');
+        if (!block) return;
+        const line = parseInt(block.getAttribute('data-source-line'), 10);
+        if (isNaN(line)) return;
+        if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.editorScrollToLine) {
+            window.webkit.messageHandlers.editorScrollToLine.postMessage(line);
+        }
     });
 
     // Link hover: notify Swift to display URL in status bar

@@ -6,7 +6,6 @@ struct MarkdownRenderView: View {
     @ObservedObject var renderVM: RenderViewModel
     @ObservedObject var sidebarVM: SidebarViewModel
     
-    @State private var isSearchVisible: Bool = false
     @State private var searchText: String = ""
     
     @Environment(\.colorScheme) private var colorScheme
@@ -36,11 +35,11 @@ struct MarkdownRenderView: View {
                 renderVM.applySystemAppearance(isDark: newScheme == .dark)
             }
             
-            if isSearchVisible {
+            if renderVM.isSearchVisible {
                 SearchBarView(
                     searchText: $searchText,
-                    isVisible: $isSearchVisible,
-                    webView: renderVM.webView
+                    isVisible: $renderVM.isSearchVisible,
+                    renderVM: renderVM
                 )
                 .transition(.move(edge: .top).combined(with: .opacity))
             }
@@ -51,13 +50,10 @@ struct MarkdownRenderView: View {
                     .background(Color(NSColor.windowBackgroundColor).opacity(0.7))
             }
         }
-        .animation(.easeInOut(duration: 0.15), value: isSearchVisible)
+        .animation(.easeInOut(duration: 0.15), value: renderVM.isSearchVisible)
         .onAppear {
             renderVM.applyCurrentThemeAndFontSize()
             renderCurrentDocument()
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .showSearchBar)) { _ in
-            withAnimation { isSearchVisible = true }
         }
     }
     
@@ -72,8 +68,4 @@ struct MarkdownRenderView: View {
         renderVM.renderMarkdown(documentVM.text)
         sidebarVM.extractTOC(from: documentVM.text)
     }
-}
-
-extension Notification.Name {
-    static let showSearchBar = Notification.Name("MDViewer.showSearchBar")
 }

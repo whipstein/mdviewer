@@ -208,6 +208,26 @@ body.dark-theme .shiki, body.dark-theme .shiki span {
     100% { background-color: transparent; }
 }
 
+/* In-page search highlights */
+mark.mdviewer-search-hit {
+    background-color: rgba(255, 213, 79, 0.55);
+    color: inherit;
+    border-radius: 2px;
+    scroll-margin: 40vh 0;
+}
+mark.mdviewer-search-hit.current {
+    background-color: rgba(255, 145, 0, 0.9);
+    color: #000;
+}
+body.dark-theme mark.mdviewer-search-hit {
+    background-color: rgba(122, 91, 0, 0.7);
+    color: #fff;
+}
+body.dark-theme mark.mdviewer-search-hit.current {
+    background-color: rgba(220, 120, 0, 0.95);
+    color: #fff;
+}
+
 /* ── Print / PDF layout ── */
 @media print {
     @page {
