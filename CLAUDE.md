@@ -21,6 +21,7 @@
 ### アプリパスワード・公証の設定
 
 - Keychainプロファイル名: `notarytool-password`
-- Apple ID: masakai@ny.thn.ne.jp
-- Team ID: CHKD9M5BF5
+- Apple ID: matt_braunstein@yahoo.com
+- Team ID: EESHX57W67
+- 署名証明書: `Developer ID Application: Matthew David Braunstein (EESHX57W67)`
 - パスワードを再生成した場合は `xcrun notarytool store-credentials "notarytool-password"` で再登録

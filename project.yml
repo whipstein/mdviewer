@@ -24,10 +24,12 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.mdviewer.app.qlextension
         SWIFT_VERSION: 5.9
         MACOSX_DEPLOYMENT_TARGET: "14.0"
-        CODE_SIGN_IDENTITY: "-"
-        CODE_SIGNING_REQUIRED: "NO"
+        DEVELOPMENT_TEAM: EESHX57W67
+        CODE_SIGN_STYLE: Manual
+        CODE_SIGN_IDENTITY: "Developer ID Application"
+        CODE_SIGNING_REQUIRED: "YES"
         CODE_SIGNING_ALLOWED: "YES"
-        ENABLE_HARDENED_RUNTIME: "NO"
+        ENABLE_HARDENED_RUNTIME: "YES"
         CODE_SIGN_ENTITLEMENTS: MDViewer/MDViewerQL/MDViewerQL.entitlements
         INFOPLIST_FILE: MDViewer/MDViewerQL/Info.plist
 
@@ -71,10 +73,12 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.mdviewer.app
         SWIFT_VERSION: 5.9
         MACOSX_DEPLOYMENT_TARGET: "14.0"
-        CODE_SIGN_IDENTITY: "-"
-        CODE_SIGNING_REQUIRED: "NO"
+        DEVELOPMENT_TEAM: EESHX57W67
+        CODE_SIGN_STYLE: Manual
+        CODE_SIGN_IDENTITY: "Developer ID Application"
+        CODE_SIGNING_REQUIRED: "YES"
         CODE_SIGNING_ALLOWED: "YES"
-        ENABLE_HARDENED_RUNTIME: "NO"
+        ENABLE_HARDENED_RUNTIME: "YES"
         CODE_SIGN_ENTITLEMENTS: MDViewer/MDViewer.entitlements
         INFOPLIST_FILE: MDViewer/Info.plist
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
