@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [1.2.1] — 2026-08-07
+
+### Fixed
+- Enlarged the TOC expand/collapse chevron's click target to a full 22×22 area so it's much easier to click
+
+---
+
 ## [1.2.0] — 2026-08-07
 
 ### Added

@@ -52,7 +52,9 @@ private struct TOCRow: View {
         HStack(spacing: 4) {
             Spacer().frame(width: CGFloat((item.level - 1) * 12))
 
-            // Disclosure chevron (only if this heading has sub-headings)
+            // Disclosure chevron (only if this heading has sub-headings).
+            // The glyph stays small but the tappable area is a full 22×22 region
+            // (contentShape makes the transparent padding hittable too).
             if hasChildren {
                 Button {
                     if isCollapsed { collapsed.remove(item.id) }
@@ -62,11 +64,12 @@ private struct TOCRow: View {
                         .font(.caption2)
                         .foregroundColor(.secondary)
                         .rotationEffect(.degrees(isCollapsed ? 0 : 90))
-                        .frame(width: 12)
+                        .frame(width: 22, height: 22)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
             } else {
-                Spacer().frame(width: 12)
+                Spacer().frame(width: 22)
             }
 
             Button {
