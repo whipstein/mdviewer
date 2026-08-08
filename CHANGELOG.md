@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [1.2.3] — 2026-08-08
+
+### Added
+- Each document now remembers its window size and position. Reopening a document restores the window frame it was last left at (stored per file path).
+
+---
+
 ## [1.2.2] — 2026-08-08
 
 ### Changed

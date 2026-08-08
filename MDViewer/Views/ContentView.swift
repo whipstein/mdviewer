@@ -131,6 +131,8 @@ private struct WindowCloseInterceptor: NSViewRepresentable {
         DispatchQueue.main.async {
             guard let window = nsView.window else { return }
             documentVM.hostWindow = window
+            // Restore/persist this document's window frame keyed by its file path.
+            context.coordinator.bind(window: window, fileURL: documentVM.fileURL)
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             nsView.window?.makeFirstResponder(nil)
@@ -144,8 +146,63 @@ private struct WindowCloseInterceptor: NSViewRepresentable {
     final class Coordinator: NSObject, NSWindowDelegate {
         var documentVM: DocumentViewModel
 
+        private weak var boundWindow: NSWindow?
+        private var fileURL: URL?
+        private var didRestore = false
+        private var frameObservers: [NSObjectProtocol] = []
+
         init(documentVM: DocumentViewModel) {
             self.documentVM = documentVM
+        }
+
+        deinit {
+            frameObservers.forEach { NotificationCenter.default.removeObserver($0) }
+        }
+
+        // MARK: Per-document window frame persistence
+
+        private var frameKey: String? {
+            guard let path = fileURL?.standardizedFileURL.path, !path.isEmpty else { return nil }
+            return "windowFrame:\(path)"
+        }
+
+        /// Restore this document's saved window frame once, and keep it saved as the
+        /// window is resized/moved/closed. Keyed by the document's file path so each
+        /// document reopens at the size it was last left.
+        func bind(window: NSWindow, fileURL: URL?) {
+            self.fileURL = fileURL
+
+            if boundWindow !== window {
+                frameObservers.forEach { NotificationCenter.default.removeObserver($0) }
+                frameObservers.removeAll()
+                boundWindow = window
+
+                let center = NotificationCenter.default
+                for name in [NSWindow.didEndLiveResizeNotification,
+                             NSWindow.didMoveNotification,
+                             NSWindow.willCloseNotification] {
+                    frameObservers.append(
+                        center.addObserver(forName: name, object: window, queue: .main) { [weak self] _ in
+                            self?.saveFrame()
+                        }
+                    )
+                }
+            }
+
+            restoreFrameIfNeeded()
+        }
+
+        private func restoreFrameIfNeeded() {
+            guard !didRestore, let window = boundWindow, let key = frameKey else { return }
+            didRestore = true
+            if let saved = UserDefaults.standard.string(forKey: key) {
+                window.setFrame(NSRectFromString(saved), display: true)
+            }
+        }
+
+        private func saveFrame() {
+            guard let window = boundWindow, let key = frameKey else { return }
+            UserDefaults.standard.set(NSStringFromRect(window.frame), forKey: key)
         }
 
         func windowShouldClose(_: NSWindow) -> Bool {
