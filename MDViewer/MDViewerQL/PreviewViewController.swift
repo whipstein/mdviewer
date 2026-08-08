@@ -1,7 +1,7 @@
 import Cocoa
 import Quartz
 
-/// Phase 1 スパイク: .mdファイルの認識確認と親ディレクトリ画像アクセスの可否確認
+/// Phase 1 spike: verify .md file recognition and parent-directory image access.
 final class PreviewViewController: NSViewController, QLPreviewingController {
     private let label = NSTextField(labelWithString: "")
 
@@ -25,7 +25,7 @@ final class PreviewViewController: NSViewController, QLPreviewingController {
             let text = try String(contentsOf: url, encoding: .utf8)
             let preview = String(text.prefix(200)).replacingOccurrences(of: "\n", with: " ")
 
-            // 親ディレクトリ内の画像ファイルを列挙してアクセス可否を確認
+            // Enumerate image files in the parent directory to check access.
             let dir = url.deletingLastPathComponent()
             let imageExts = Set(["png", "jpg", "jpeg", "gif", "svg", "webp"])
             var imageAccessLog = ""

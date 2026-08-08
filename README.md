@@ -38,7 +38,7 @@ Toggle the built-in editor with **⌘E** or the pencil button in the toolbar.
 
 ## Installation
 
-1. Download the latest `MDViewer-x.x.x.zip` from the [Releases page](https://github.com/Masakai/mdviewer/releases/latest)
+1. Download the latest `MDViewer-x.x.x.zip` from the [Releases page](https://github.com/whipstein/mdviewer/releases/latest)
 2. Unzip and drag `MDViewer.app` to your **Applications** folder
 3. Double-click any `.md` file — or drop it onto the MDViewer icon in the Dock
 
@@ -47,7 +47,7 @@ Toggle the built-in editor with **⌘E** or the pencil button in the toolbar.
 Requires Xcode 15 or later.
 
 ```sh
-git clone https://github.com/Masakai/mdviewer.git
+git clone https://github.com/whipstein/mdviewer.git
 cd mdviewer
 open MDViewer.xcodeproj
 ```

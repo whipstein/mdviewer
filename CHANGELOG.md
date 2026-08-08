@@ -6,6 +6,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [1.2.0] — 2026-08-07
+
+### Added
+- Split-view editor click-to-locate: click any block in the preview to move the editor's caret to that source line
+- In-document search (⌘F): highlights every match with a `current/total` counter, steps through hits with ⌘G / ⇧⌘G, and auto-expands collapsed sections when a match is inside one
+
+### Fixed
+- Shell/code blocks containing `$…$` (e.g. `echo $FOO and $BAR`) now render literally instead of being parsed as math
+- Reload no longer discards unsaved edits: the reload button prompts Save / Discard / Cancel, and the file watcher won't overwrite in-progress edits
+- Search now opens and focuses only in the active window instead of every open window
+
+### Removed
+- Japanese localization; the app is now English-only
+
+---
+
 ## [1.1.2] — 2026-06-14
 
 ### Changed
@@ -84,4 +100,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - In-page text search (⌘F)
 - Japanese / English localization
 - Developer ID signing and Apple notarization
-- Landing page (English and Japanese) at https://masakai.github.io/mdviewer/
+- Landing page (English and Japanese) at https://whipstein.github.io/mdviewer/

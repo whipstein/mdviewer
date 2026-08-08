@@ -1,63 +1,63 @@
-# Markdown 全要素テスト
+# Markdown All-Elements Test
 
-## 見出し
+## Headings
 
-# H1 見出し
-## H2 見出し
-### H3 見出し
-#### H4 見出し
-##### H5 見出し
-###### H6 見出し
-
----
-
-## 段落・テキスト装飾
-
-通常の段落テキスト。Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-
-**太字テキスト**　*イタリック*　***太字イタリック***
-
-~~取り消し線~~　`インラインコード`
-
-<u>下線</u>　<mark>ハイライト</mark>　<small>小さいテキスト</small>
-
-上付き: X<sup>2</sup>　下付き: H<sub>2</sub>O
+# H1 Heading
+## H2 Heading
+### H3 Heading
+#### H4 Heading
+##### H5 Heading
+###### H6 Heading
 
 ---
 
-## リスト
+## Paragraphs & Text Decoration
 
-### 箇条書き
+A normal paragraph of text. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 
-- 項目 A
-- 項目 B
-  - ネスト B-1
-  - ネスト B-2
-    - 深いネスト B-2-a
-- 項目 C
+**Bold text** *italic* ***bold italic***
 
-### 番号付きリスト
+~~strikethrough~~ `inline code`
 
-1. 最初の項目
-2. 二番目の項目
-   1. ネスト 2-1
-   2. ネスト 2-2
-3. 三番目の項目
+<u>underline</u> <mark>highlight</mark> <small>small text</small>
 
-### タスクリスト
-
-- [x] 完了したタスク
-- [x] これも完了
-- [ ] 未完了のタスク
-- [ ] もう一つの未完了
+Superscript: X<sup>2</sup> Subscript: H<sub>2</sub>O
 
 ---
 
-## リンク
+## Lists
 
-[外部リンク（Googleへ）](https://www.google.com)
+### Bulleted
 
-[タイトル付きリンク](https://www.example.com "example.com へのリンク")
+- Item A
+- Item B
+  - Nested B-1
+  - Nested B-2
+    - Deeply nested B-2-a
+- Item C
+
+### Numbered
+
+1. First item
+2. Second item
+   1. Nested 2-1
+   2. Nested 2-2
+3. Third item
+
+### Task List
+
+- [x] Completed task
+- [x] Also completed
+- [ ] Incomplete task
+- [ ] Another incomplete task
+
+---
+
+## Links
+
+[External link (to Google)](https://www.google.com)
+
+[Link with title](https://www.example.com "Link to example.com")
 
 <https://www.autolink-example.com>
 
@@ -65,35 +65,35 @@
 
 ---
 
-## 画像
+## Images
 
-![代替テキスト（存在しない画像）](./images/sample.png)
-
----
-
-## 引用
-
-> 単一行の引用文。
-
-> 複数行にわたる引用文。
-> 二行目。
-> 三行目。
-
-> ネストされた引用
-> > 内側の引用
-> > > さらに深い引用
+![Alt text (nonexistent image)](./images/sample.png)
 
 ---
 
-## コードブロック
+## Blockquotes
 
-### インデントコード
+> A single-line quote.
+
+> A quote spanning multiple lines.
+> Second line.
+> Third line.
+
+> Nested quote
+> > Inner quote
+> > > Even deeper quote
+
+---
+
+## Code Blocks
+
+### Indented code
 
     function hello() {
         return "world";
     }
 
-### フェンスコード（言語指定なし）
+### Fenced code (no language)
 
 ```
 plain text code block
@@ -169,44 +169,44 @@ LIMIT 10;
 
 ---
 
-## テーブル
+## Tables
 
-### 基本テーブル
+### Basic table
 
-| 列 A | 列 B | 列 C |
-|------|------|------|
-| 値 1 | 値 2 | 値 3 |
-| 値 4 | 値 5 | 値 6 |
-| 値 7 | 値 8 | 値 9 |
+| Column A | Column B | Column C |
+|----------|----------|----------|
+| Value 1  | Value 2  | Value 3  |
+| Value 4  | Value 5  | Value 6  |
+| Value 7  | Value 8  | Value 9  |
 
-### 整列指定
+### Alignment
 
-| 左揃え | 中央揃え | 右揃え |
-|:-------|:--------:|-------:|
-| Apple  | Orange   | 100    |
-| Banana | Grape    | 2500   |
-| Cherry | Mango    | 38     |
+| Left   | Center   | Right |
+|:-------|:--------:|------:|
+| Apple  | Orange   | 100   |
+| Banana | Grape    | 2500  |
+| Cherry | Mango    | 38    |
 
-### 長いテーブル
+### Long table
 
-| No. | 名前           | 役割           | 言語         | 備考                         |
-|----:|:---------------|:---------------|:-------------|:-----------------------------|
-|   1 | Alice          | フロントエンド | TypeScript   | Reactが得意                  |
-|   2 | Bob            | バックエンド   | Go           | マイクロサービス担当         |
-|   3 | Carol          | インフラ       | Bash / Python | Kubernetes 管理              |
-|   4 | Dave           | データ分析     | Python / R   | 機械学習モデルの構築         |
+| No. | Name  | Role         | Language      | Notes                        |
+|----:|:------|:-------------|:--------------|:-----------------------------|
+|   1 | Alice | Frontend     | TypeScript    | Strong with React            |
+|   2 | Bob   | Backend      | Go            | Owns microservices           |
+|   3 | Carol | Infra        | Bash / Python | Manages Kubernetes           |
+|   4 | Dave  | Data analyst | Python / R    | Builds machine-learning models |
 
 ---
 
-## 数式（KaTeX）
+## Math (KaTeX)
 
-### インライン数式
+### Inline math
 
-オイラーの等式: $e^{i\pi} + 1 = 0$
+Euler's identity: $e^{i\pi} + 1 = 0$
 
-二次方程式の解: $x = \dfrac{-b \pm \sqrt{b^2 - 4ac}}{2a}$
+Quadratic formula: $x = \dfrac{-b \pm \sqrt{b^2 - 4ac}}{2a}$
 
-### ブロック数式
+### Block math
 
 $$
 \int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi}
@@ -238,27 +238,27 @@ $$
 
 ---
 
-## Mermaid ダイアグラム
+## Mermaid Diagrams
 
-### フローチャート
+### Flowchart
 
 ```mermaid
 flowchart TD
-    A([開始]) --> B{条件分岐}
-    B -- YES --> C[処理 A]
-    B -- NO  --> D[処理 B]
-    C --> E[(データベース)]
+    A([Start]) --> B{Condition}
+    B -- YES --> C[Process A]
+    B -- NO  --> D[Process B]
+    C --> E[(Database)]
     D --> E
-    E --> F([終了])
+    E --> F([End])
 ```
 
-### シーケンス図
+### Sequence diagram
 
 ```mermaid
 sequenceDiagram
-    participant C as クライアント
-    participant S as サーバー
-    participant D as データベース
+    participant C as Client
+    participant S as Server
+    participant D as Database
 
     C->>S: GET /api/users
     S->>D: SELECT * FROM users
@@ -266,7 +266,7 @@ sequenceDiagram
     S-->>C: 200 OK (JSON)
 ```
 
-### クラス図
+### Class diagram
 
 ```mermaid
 classDiagram
@@ -287,7 +287,7 @@ classDiagram
     Animal <|-- Cat
 ```
 
-### Gitグラフ
+### Git graph
 
 ```mermaid
 gitGraph
@@ -303,7 +303,7 @@ gitGraph
 
 ---
 
-## 水平線
+## Horizontal Rules
 
 ---
 
@@ -313,58 +313,58 @@ ___
 
 ---
 
-## HTMLタグ（インライン）
+## HTML Tags (inline)
 
 <details>
-<summary>クリックして展開</summary>
+<summary>Click to expand</summary>
 
-この中身は折りたたまれています。
+This content is collapsed.
 
-- 項目 1
-- 項目 2
+- Item 1
+- Item 2
 
 </details>
 
 <br>
 
-改行後のテキスト。
+Text after a line break.
 
-<div style="color: steelblue; font-weight: bold;">カラー付きテキスト（div）</div>
-
----
-
-## 脚注
-
-本文中に脚注[^1]を入れることができます。複数の脚注[^2]も使えます。
-
-[^1]: これが一つ目の脚注です。
-[^2]: これが二つ目の脚注です。長い説明を書くこともできます。
+<div style="color: steelblue; font-weight: bold;">Colored text (div)</div>
 
 ---
 
-## 定義リスト（拡張）
+## Footnotes
 
-用語 A
-: 用語 A の説明文。
+You can add a footnote[^1] in the body text. Multiple footnotes[^2] are supported too.
 
-用語 B
-: 用語 B の説明文その一。
-: 用語 B の説明文その二。
+[^1]: This is the first footnote.
+[^2]: This is the second footnote. It can contain a longer explanation.
 
 ---
 
-## エスケープ
+## Definition List (extended)
 
-\*アスタリスクをエスケープ\*　\`バッククォートをエスケープ\`　\[角括弧をエスケープ\]
+Term A
+: Description of term A.
+
+Term B
+: First description of term B.
+: Second description of term B.
 
 ---
 
-## 長文テキスト（折り返しテスト）
+## Escaping
 
-吾輩は猫である。名前はまだ無い。どこで生れたかとんと見当がつかぬ。何でも薄暗いじめじめした所でニャーニャー泣いていた事だけは記憶している。吾輩はここで始めて人間というものを見た。しかもあとで聞くとそれは書生という人間中で一番獰悪な種族であったそうだ。
+\*escaped asterisks\* \`escaped backticks\` \[escaped brackets\]
+
+---
+
+## Long Text (word-wrap test)
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
 
 The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs. How valiantly did Bez jot down my quack fox jumping over the wig.
 
 ---
 
-*以上、全要素テスト完了。*
+*End of all-elements test.*
