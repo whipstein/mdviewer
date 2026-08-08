@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [1.2.2] — 2026-08-08
+
+### Changed
+- The table of contents now starts fully collapsed when a document is first opened. Reloads and edits preserve your current expand/collapse state (tracked per heading anchor).
+
+---
+
 ## [1.2.1] — 2026-08-07
 
 ### Fixed

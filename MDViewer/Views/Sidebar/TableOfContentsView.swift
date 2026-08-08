@@ -4,7 +4,11 @@ struct TableOfContentsView: View {
     @ObservedObject var sidebarVM: SidebarViewModel
     let onSelect: (String) -> Void
 
-    @State private var collapsed: Set<UUID> = []
+    // Collapse state is keyed by the heading anchor (a stable slug) rather than the
+    // item's UUID, which is regenerated on every parse. This lets the expand/collapse
+    // state survive reloads and live edits.
+    @State private var collapsed: Set<String> = []
+    @State private var didInitialCollapse = false
 
     var body: some View {
         if sidebarVM.tocItems.isEmpty {
@@ -24,30 +28,47 @@ struct TableOfContentsView: View {
                 }
             }
             .listStyle(.sidebar)
+            .onAppear { collapseAllOnFirstLoad() }
+            .onChange(of: sidebarVM.tocItems) { _, _ in collapseAllOnFirstLoad() }
         }
+    }
+
+    /// Collapse every section, but only the first time a document's TOC appears.
+    /// Reloads and edits re-parse the document, yet the collapse state is preserved
+    /// because it is keyed by the (stable) anchor.
+    private func collapseAllOnFirstLoad() {
+        guard !didInitialCollapse, !sidebarVM.tocItems.isEmpty else { return }
+        var anchors: Set<String> = []
+        func walk(_ node: TOCItem) {
+            if !node.children.isEmpty { anchors.insert(node.anchor) }
+            node.children.forEach(walk)
+        }
+        sidebarVM.tocItems.forEach(walk)
+        collapsed = anchors
+        didInitialCollapse = true
     }
 }
 
 private struct TOCRow: View {
     let item: TOCItem
-    @Binding var collapsed: Set<UUID>
+    @Binding var collapsed: Set<String>
     let onSelect: (String) -> Void
 
-    private var isCollapsed: Bool { collapsed.contains(item.id) }
+    private var isCollapsed: Bool { collapsed.contains(item.anchor) }
     private var hasChildren: Bool { !item.children.isEmpty }
 
     private func setSubtree(_ node: TOCItem, collapsed value: Bool) {
         var newSet = collapsed
         func apply(_ n: TOCItem) {
             if !n.children.isEmpty {
-                if value { newSet.insert(n.id) } else { newSet.remove(n.id) }
+                if value { newSet.insert(n.anchor) } else { newSet.remove(n.anchor) }
             }
             for child in n.children { apply(child) }
         }
         apply(node)          // ← start at the clicked node itself, not its children
         collapsed = newSet
     }
-    
+
     var body: some View {
         HStack(spacing: 4) {
             Spacer().frame(width: CGFloat((item.level - 1) * 12))
@@ -57,8 +78,8 @@ private struct TOCRow: View {
             // (contentShape makes the transparent padding hittable too).
             if hasChildren {
                 Button {
-                    if isCollapsed { collapsed.remove(item.id) }
-                    else { collapsed.insert(item.id) }
+                    if isCollapsed { collapsed.remove(item.anchor) }
+                    else { collapsed.insert(item.anchor) }
                 } label: {
                     Image(systemName: "chevron.right")
                         .font(.caption2)
