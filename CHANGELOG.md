@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [1.2.4] — 2026-08-08
+
+### Changed
+- Rendered headings are now indented by level (each subsection steps in from its parent), giving the document an outline-style layout.
+
+---
+
 ## [1.2.3] — 2026-08-08
 
 ### Added

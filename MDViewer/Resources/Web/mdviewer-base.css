@@ -340,6 +340,11 @@ body.dark-theme mark.mdviewer-search-hit.current {
 .collapsible-section.collapsed > .collapsible-header > .collapsible-toggle {
     transform: rotate(-90deg);
 }
+/* Indent each subsection so headings step in by level (H2 under H1, etc.).
+   Sections nest in the DOM, so this indent compounds naturally with depth. */
+.collapsible-body {
+    padding-left: 1.25rem;
+}
 .collapsible-section.collapsed > .collapsible-body {
     display: none;
 }
