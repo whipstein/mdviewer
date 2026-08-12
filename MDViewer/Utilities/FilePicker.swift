@@ -10,7 +10,8 @@ import AppKit
 enum FilePicker {
     static func pickMarkdownURL() -> URL? {
         let panel = NSOpenPanel()
-        panel.allowedContentTypes = [.markdown, .plainText]
+        // No content-type restriction: allow selecting any file (read as UTF-8 text).
+        panel.allowsOtherFileTypes = true
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = false
         return panel.runModal() == .OK ? panel.url : nil

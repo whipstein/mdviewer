@@ -22,7 +22,8 @@ final class DocumentViewModel: ObservableObject {
 
     func openFile() {
         let panel = NSOpenPanel()
-        panel.allowedContentTypes = [.markdown, .plainText]
+        // Allow selecting any file; it's read as UTF-8 text.
+        panel.allowsOtherFileTypes = true
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = false
 

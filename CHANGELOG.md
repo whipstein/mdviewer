@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [1.2.5] — 2026-08-12
+
+### Added
+- The Open dialog now accepts any file type; the selected file is opened in-app and read as UTF-8 text (⌘O and the toolbar Open button route through the document opener rather than the default app).
+
+### Fixed
+- The copy button and language label no longer overlap the first line of full-width code blocks — code blocks now reserve a blank strip at the top (both syntax-highlighted and plain).
+
+---
+
 ## [1.2.4] — 2026-08-08
 
 ### Changed

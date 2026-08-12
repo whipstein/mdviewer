@@ -75,7 +75,9 @@ code, pre {
 }
 
 pre {
-    padding: 16px;
+    /* Extra top padding reserves a blank line so the copy button and language
+       label (top-right) never overlap the first line of full-width code. */
+    padding: 40px 16px 16px;
     overflow: auto;
     border-radius: 6px;
     line-height: 1.45;
@@ -165,7 +167,9 @@ body.dark-theme .shiki, body.dark-theme .shiki span {
     text-decoration: var(--shiki-dark-text-decoration) !important;
 }
 .shiki {
-    padding: 16px;
+    /* Match the base <pre>: reserve a blank line at the top so the copy button
+       and language label don't overlap the first line of code. */
+    padding: 40px 16px 16px;
     border-radius: 6px;
     overflow: auto;
     margin: 0 0 16px;

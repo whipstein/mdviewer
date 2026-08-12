@@ -8,8 +8,9 @@ extension UTType {
 struct MarkdownDocument: FileDocument {
     var text: String
 
+    // `.data` is a catch-all so any file can be opened and read as UTF-8 text.
     static var readableContentTypes: [UTType] {
-        [.markdown, .plainText]
+        [.markdown, .plainText, .data]
     }
 
     init(text: String = "") {

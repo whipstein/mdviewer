@@ -2,6 +2,7 @@ import SwiftUI
 
 struct MainToolbar: ToolbarContent {
     @Environment(\.openWindow) private var openWindow
+    @Environment(\.openDocument) private var openDocument
     @ObservedObject var documentVM: DocumentViewModel
     @ObservedObject var renderVM: RenderViewModel
     @ObservedObject var exportVM: ExportViewModel
@@ -11,12 +12,12 @@ struct MainToolbar: ToolbarContent {
         ToolbarItem(placement: .navigation) {
             Button {
                 if let url = FilePicker.pickMarkdownURL() {
-                    NSWorkspace.shared.open(url)
+                    Task { try? await openDocument(at: url) }
                 }
             } label: {
                 Label("Open", systemImage: "folder")
             }
-            .help("Open Markdown File (⌘O)")
+            .help("Open File (⌘O)")
         }
 
         ToolbarItem(placement: .navigation) {

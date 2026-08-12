@@ -135,14 +135,17 @@ struct MDViewerApp: App {
 }
 
 struct OpenFileCommand: View {
+    @Environment(\.openDocument) private var openDocument
+
     var body: some View {
         Button("Open…") {
             let panel = NSOpenPanel()
-            panel.allowedContentTypes = [.markdown, .plainText]
+            // Allow any file; MarkdownDocument reads it as UTF-8 text.
+            panel.allowsOtherFileTypes = true
             panel.allowsMultipleSelection = false
             panel.canChooseDirectories = false
             if panel.runModal() == .OK, let url = panel.url {
-                NSWorkspace.shared.open(url)
+                Task { try? await openDocument(at: url) }
             }
         }
         .keyboardShortcut("o", modifiers: .command)
