@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [1.3.0] — 2026-08-15
+
+### Changed
+- Updated the bundled Mermaid to 11.16.1 (from 10.9.5), adding newer diagram types such as `architecture-beta`, `packet-beta`, and `kanban`.
+
+---
+
 ## [1.2.6] — 2026-08-15
 
 ### Added

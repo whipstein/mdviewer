@@ -301,6 +301,23 @@ gitGraph
     commit id: "release v1.0"
 ```
 
+### Architecture (Mermaid 11+ only)
+
+This `architecture-beta` diagram was introduced in Mermaid 11.1 and fails to
+render on Mermaid 10 — a compatibility check for the bundled version.
+
+```mermaid
+architecture-beta
+    group api(cloud)[API]
+
+    service db(database)[Database] in api
+    service disk(disk)[Storage] in api
+    service server(server)[Server] in api
+
+    db:L -- R:server
+    disk:T -- B:server
+```
+
 ---
 
 ## Horizontal Rules
