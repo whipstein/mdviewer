@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [1.2.6] — 2026-08-15
+
+### Added
+- Safari-style page zoom for the preview: ⌘+/⌘-/⌘0 and a zoom control in the toolbar (scales text, images, code, and diagrams). Persists across launches.
+- The toolbar font-size value is now an editable field — click it and type a size.
+
+### Changed
+- Font-size shortcuts moved to ⌥⌘+/⌥⌘-/⌥⌘0 (zoom now uses ⌘+/⌘-/⌘0). The font-size menu shortcuts work again.
+- Content within a heading is now indented under its heading for a clearer outline.
+
+---
+
 ## [1.2.5] — 2026-08-12
 
 ### Added

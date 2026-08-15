@@ -347,7 +347,9 @@ body.dark-theme mark.mdviewer-search-hit.current {
 /* Indent each subsection so headings step in by level (H2 under H1, etc.).
    Sections nest in the DOM, so this indent compounds naturally with depth. */
 .collapsible-body {
-    padding-left: 1.25rem;
+    /* Indent a section's content past its heading text (the heading is offset by
+       the disclosure chevron ~1.75rem), so content sits clearly under the heading. */
+    padding-left: 2.5rem;
 }
 .collapsible-section.collapsed > .collapsible-body {
     display: none;

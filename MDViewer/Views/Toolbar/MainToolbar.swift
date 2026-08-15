@@ -28,7 +28,41 @@ struct MainToolbar: ToolbarContent {
             }
             .help("Reload File (⌘R)")
         }
-        
+
+        // Zoom controls — grouped in a single ToolbarItem/HStack.
+        ToolbarItem(placement: .primaryAction) {
+            HStack(spacing: 4) {
+                Button {
+                    renderVM.zoomOut()
+                } label: {
+                    Image(systemName: "minus.magnifyingglass")
+                }
+                .help("Zoom Out (⌘-)")
+
+                Button {
+                    renderVM.resetZoom()
+                } label: {
+                    Text("\(Int((renderVM.zoom * 100).rounded()))%")
+                        .font(.caption)
+                        .monospacedDigit()
+                        .frame(minWidth: 40)
+                }
+                .help("Actual Size (⌘0)")
+
+                Button {
+                    renderVM.zoomIn()
+                } label: {
+                    Image(systemName: "plus.magnifyingglass")
+                }
+                .help("Zoom In (⌘+)")
+            }
+        }
+
+        // Break the shared pill so zoom is its own section (macOS 26+ Liquid Glass).
+        if #available(macOS 26.0, *) {
+            ToolbarSpacer(.fixed, placement: .primaryAction)
+        }
+
         ToolbarItemGroup(placement: .primaryAction) {
             // The Editor button:
             Button {
@@ -38,7 +72,7 @@ struct MainToolbar: ToolbarContent {
             }
             .foregroundColor(isEditorMode ? .accentColor : .primary)
             .help("Toggle Editor Mode (⌘E)")
-            
+
             // Search button
             Button {
                 renderVM.isSearchVisible = true
@@ -58,35 +92,26 @@ struct MainToolbar: ToolbarContent {
 
             Divider()
 
-            // Font size controls
-            HStack(spacing: 4) {
-                Button {
-                    renderVM.decreaseFontSize()
-                } label: {
-                    Image(systemName: "textformat.size.smaller")
-                }
-                .help("Decrease Font Size (⌘-)")
-
-                Button {
-                    renderVM.resetFontSize()
-                } label: {
-                    Text("\(Int(renderVM.fontSize))")
-                        .font(.caption)
-                        .frame(minWidth: 24)
-                }
-                .help("Reset Font Size (⌘0)")
-
-                Button {
-                    renderVM.increaseFontSize()
-                } label: {
-                    Image(systemName: "textformat.size.larger")
-                }
-                .help("Increase Font Size (⌘+)")
+            // Font size controls (value is an editable field)
+            Button {
+                renderVM.decreaseFontSize()
+            } label: {
+                Image(systemName: "textformat.size.smaller")
             }
+            .help("Decrease Font Size (⌥⌘-)")
 
-            Divider()
+            FontSizeField(renderVM: renderVM)
 
-            // Theme picker
+            Button {
+                renderVM.increaseFontSize()
+            } label: {
+                Image(systemName: "textformat.size.larger")
+            }
+            .help("Increase Font Size (⌥⌘+)")
+        }
+
+        // Theme picker — its own section
+        ToolbarItem(placement: .primaryAction) {
             Menu {
                 ForEach(MarkdownTheme.all) { theme in
                     Button(theme.displayName) {
@@ -97,8 +122,10 @@ struct MainToolbar: ToolbarContent {
                 Label("Theme", systemImage: "paintpalette")
             }
             .help("Select Theme")
+        }
 
-            // Export menu
+        // Export menu — its own section
+        ToolbarItem(placement: .primaryAction) {
             Menu {
                 Button("Export as PDF…") {
                     if let wv = renderVM.webView {
@@ -127,5 +154,41 @@ struct MainToolbar: ToolbarContent {
             }
             .help("Export or Print")
         }
+    }
+}
+
+/// Editable font-size field for the toolbar. Click to type a new size; commit with
+/// Return. Reflects external changes (steppers, ⌥⌘±) when not being edited.
+private struct FontSizeField: View {
+    @ObservedObject var renderVM: RenderViewModel
+    @State private var text: String = ""
+    @FocusState private var isFocused: Bool
+
+    var body: some View {
+        TextField("", text: $text)
+            .textFieldStyle(.plain)
+            .multilineTextAlignment(.center)
+            .font(.caption)
+            .monospacedDigit()
+            .frame(width: 30)
+            .focused($isFocused)
+            .onSubmit(commit)
+            .onAppear { text = String(Int(renderVM.fontSize)) }
+            .onChange(of: renderVM.fontSize) { _, newValue in
+                if !isFocused { text = String(Int(newValue)) }
+            }
+            .onChange(of: isFocused) { _, focused in
+                // On blur without committing, restore the current value.
+                if !focused { text = String(Int(renderVM.fontSize)) }
+            }
+            .help("Font Size (click to type, ⌥⌘0 to reset)")
+    }
+
+    private func commit() {
+        if let value = Double(text) {
+            renderVM.setFontSize(value)
+        }
+        text = String(Int(renderVM.fontSize))
+        isFocused = false
     }
 }

@@ -99,6 +99,14 @@ struct ContentView: View {
         // Add this modifier to the body (e.g. near .toolbar):
         .focusedSceneValue(\.editorToggle, EditorToggleAction(toggle: { isEditorMode.toggle() }))
         .focusedSceneValue(\.showSearch, ShowSearchAction(show: { renderVM.isSearchVisible = true }))
+        .focusedSceneValue(\.previewScale, PreviewScaleActions(
+            zoomIn: { renderVM.zoomIn() },
+            zoomOut: { renderVM.zoomOut() },
+            zoomReset: { renderVM.resetZoom() },
+            fontIncrease: { renderVM.increaseFontSize() },
+            fontDecrease: { renderVM.decreaseFontSize() },
+            fontReset: { renderVM.resetFontSize() }
+        ))
         .onReceive(NotificationCenter.default.publisher(for: .toggleSidebar)) { _ in
             // NavigationSplitView handles its own sidebar toggle
         }

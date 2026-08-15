@@ -8,6 +8,10 @@ final class RenderViewModel: ObservableObject {
     @Published var fontSize: Double = 16
     @Published var hoveredURL: String = ""
 
+    /// Safari-style page zoom for the rendered preview (1.0 = 100%). Applied via
+    /// WKWebView.pageZoom, which scales all page content (text, images, code, diagrams).
+    @Published var zoom: Double = 1.0
+
     /// A request from the preview to move the editor to a source line (click-to-locate).
     /// The `id` lets the editor detect a new request even if the same line is clicked twice.
     struct EditorScrollRequest: Equatable {
@@ -56,6 +60,7 @@ final class RenderViewModel: ObservableObject {
 
     @AppStorage("selectedThemeId") private var storedThemeId: String = MarkdownTheme.githubLight.id
     @AppStorage("fontSize") private var storedFontSize: Double = 16
+    @AppStorage("previewZoom") private var storedZoom: Double = 1.0
     @AppStorage("pdfPageSize") private var storedPDFPageSize: String = PDFPageSize.a4.rawValue
 
     weak var webView: WKWebView?
@@ -86,6 +91,7 @@ final class RenderViewModel: ObservableObject {
             theme = saved
         }
         fontSize = storedFontSize
+        zoom = storedZoom
 
         NotificationCenter.default
             .publisher(for: .pdfPageSizeChanged)
@@ -119,6 +125,28 @@ final class RenderViewModel: ObservableObject {
         setFontSize(16)
     }
 
+    // MARK: - Page zoom (Safari-style ⌘+/⌘-/⌘0)
+
+    func setZoom(_ value: Double) {
+        let clamped = min(max(value, 0.5), 3.0)
+        // Round to the nearest 10% so values stay clean (e.g. 1.1, 1.2).
+        zoom = (clamped * 10).rounded() / 10
+        storedZoom = zoom
+        webView?.pageZoom = zoom
+    }
+
+    func zoomIn() {
+        setZoom(zoom + 0.1)
+    }
+
+    func zoomOut() {
+        setZoom(zoom - 0.1)
+    }
+
+    func resetZoom() {
+        setZoom(1.0)
+    }
+
     func setBaseURL(_ directoryURL: URL) {
         // The Markdown file's directory is served to the WebView through the
         // custom mdviewer-local:// scheme handler, which enforces path security.
@@ -143,6 +171,7 @@ final class RenderViewModel: ObservableObject {
         isRendererReady = true
         applyCurrentThemeAndFontSize()
         applyPDFPageSize()
+        webView?.pageZoom = zoom
         if let path = pendingDocumentPath {
             pendingDocumentPath = nil
             webView?.evaluateJavaScript("MDViewer.setDocumentPath('\(escapeForJS(path))')", completionHandler: nil)

@@ -54,6 +54,57 @@ struct FocusedEditorToggleButton: View {
     }
 }
 
+/// Per-window preview scaling actions (zoom + font size), surfaced to menu commands
+/// via the focused scene so ⌘+/⌘-/⌘0 (zoom) and ⌥⌘+/⌥⌘-/⌥⌘0 (font) target the
+/// front document only.
+struct PreviewScaleActions {
+    let zoomIn: () -> Void
+    let zoomOut: () -> Void
+    let zoomReset: () -> Void
+    let fontIncrease: () -> Void
+    let fontDecrease: () -> Void
+    let fontReset: () -> Void
+}
+
+struct PreviewScaleKey: FocusedValueKey {
+    typealias Value = PreviewScaleActions
+}
+
+extension FocusedValues {
+    var previewScale: PreviewScaleActions? {
+        get { self[PreviewScaleKey.self] }
+        set { self[PreviewScaleKey.self] = newValue }
+    }
+}
+
+struct ScaleCommands: View {
+    @FocusedValue(\.previewScale) private var scale
+
+    var body: some View {
+        Button("Zoom In") { scale?.zoomIn() }
+            .keyboardShortcut("+", modifiers: .command)
+            .disabled(scale == nil)
+        Button("Zoom Out") { scale?.zoomOut() }
+            .keyboardShortcut("-", modifiers: .command)
+            .disabled(scale == nil)
+        Button("Actual Size") { scale?.zoomReset() }
+            .keyboardShortcut("0", modifiers: .command)
+            .disabled(scale == nil)
+
+        Divider()
+
+        Button("Increase Font Size") { scale?.fontIncrease() }
+            .keyboardShortcut("+", modifiers: [.command, .option])
+            .disabled(scale == nil)
+        Button("Decrease Font Size") { scale?.fontDecrease() }
+            .keyboardShortcut("-", modifiers: [.command, .option])
+            .disabled(scale == nil)
+        Button("Reset Font Size") { scale?.fontReset() }
+            .keyboardShortcut("0", modifiers: [.command, .option])
+            .disabled(scale == nil)
+    }
+}
+
 @main
 struct MDViewerApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
@@ -99,20 +150,7 @@ struct MDViewerApp: App {
 
                 Divider()
 
-                Button("Increase Font Size") {
-                    NotificationCenter.default.post(name: .increaseFontSize, object: nil)
-                }
-                .keyboardShortcut("+", modifiers: .command)
-
-                Button("Decrease Font Size") {
-                    NotificationCenter.default.post(name: .decreaseFontSize, object: nil)
-                }
-                .keyboardShortcut("-", modifiers: .command)
-
-                Button("Reset Font Size") {
-                    NotificationCenter.default.post(name: .resetFontSize, object: nil)
-                }
-                .keyboardShortcut("0", modifiers: .command)
+                ScaleCommands()
             }
 
             CommandMenu("Export") {
@@ -155,9 +193,6 @@ struct OpenFileCommand: View {
 // MARK: - Additional Notification names
 
 extension Notification.Name {
-    static let increaseFontSize = Notification.Name("MDViewer.increaseFontSize")
-    static let decreaseFontSize = Notification.Name("MDViewer.decreaseFontSize")
-    static let resetFontSize = Notification.Name("MDViewer.resetFontSize")
     static let exportPDF = Notification.Name("MDViewer.exportPDF")
     static let exportHTML = Notification.Name("MDViewer.exportHTML")
     static let pdfPageSizeChanged = Notification.Name("MDViewer.pdfPageSizeChanged")
