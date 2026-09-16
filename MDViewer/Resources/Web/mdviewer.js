@@ -20,6 +20,40 @@
         });
     }
 
+    // Mermaid lays diagrams out by measuring rendered text, which only works
+    // while the diagram is actually visible — inside a collapsed section
+    // (display: none) every measurement is zero and the diagram comes out
+    // blank. Worse, mermaid stamps data-processed on whatever it is handed and
+    // skips those nodes forever after, so a diagram in a section that was
+    // collapsed at render time would stay broken even once expanded.
+    //
+    // So only hand mermaid the diagrams that are visible right now, and leave
+    // the hidden ones untouched (and therefore un-stamped) until their section
+    // is expanded, at which point this runs again for them.
+    function renderMermaidDiagrams(root) {
+        if (typeof mermaid === 'undefined') { return; }
+
+        const scope = root || document;
+        const pending = Array.from(
+            scope.querySelectorAll('.mermaid:not([data-processed])')
+        ).filter(function (el) {
+            // offsetParent is null exactly when the element (or an ancestor)
+            // is display: none — i.e. inside a collapsed section.
+            return el.offsetParent !== null;
+        });
+
+        if (!pending.length) { return; }
+
+        try {
+            const result = mermaid.run({ nodes: pending });
+            if (result && typeof result.catch === 'function') {
+                result.catch(function (e) { console.warn('Mermaid render error:', e); });
+            }
+        } catch (e) {
+            console.warn('Mermaid render error:', e);
+        }
+    }
+
     let currentDocumentKey = null;
 
     function collapsedStorageKey() {
@@ -153,6 +187,9 @@
                         if (collapsed) { set.add(anchorId); } else { set.delete(anchorId); }
                         saveCollapsedSet(set);
                     }
+
+                    // Diagrams hidden at render time are still unrendered.
+                    if (!collapsed) { renderMermaidDiagrams(section); }
                 });
                 header.addEventListener('keydown', function (e) {
                     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); header.click(); }
@@ -182,8 +219,10 @@
             if (anchorId && collapsed) { set.add(anchorId); }
         });
         saveCollapsedSet(set);
+
+        if (!collapsed) { renderMermaidDiagrams(document); }
     }
-    
+
     function createChevronSVG() {
         const svgNS = 'http://www.w3.org/2000/svg';
         const svg = document.createElementNS(svgNS, 'svg');
@@ -305,6 +344,8 @@
         };
         apply(section);
         saveCollapsedSet(set);
+
+        if (!collapsed) { renderMermaidDiagrams(section); }
     }
 
     // -- In-page search -----------------------------------------------------
@@ -338,9 +379,13 @@
 
     function expandCollapsedAncestors(el) {
         let node = el.parentElement;
+        let expandedAny = false;
+        let outermost = null;
         while (node) {
             if (node.classList && node.classList.contains('collapsible-section') && node.classList.contains('collapsed')) {
                 node.classList.remove('collapsed');
+                expandedAny = true;
+                outermost = node;
                 const btn = node.querySelector(':scope > .collapsible-header > .collapsible-toggle');
                 if (btn) {
                     btn.setAttribute('aria-expanded', 'true');
@@ -349,6 +394,9 @@
             }
             node = node.parentElement;
         }
+
+        // Diagrams revealed by expanding are still unrendered.
+        if (expandedAny) { renderMermaidDiagrams(outermost); }
     }
 
     function setCurrentMatch(index) {
@@ -529,14 +577,9 @@
                 wrapCollapsibleSections(contentEl);
                 addCopyButtons(contentEl);
                 
-                // Render Mermaid diagrams
-                if (typeof mermaid !== 'undefined') {
-                    try {
-                        mermaid.run({ querySelector: '.mermaid' });
-                    } catch (e) {
-                        console.warn('Mermaid render error:', e);
-                    }
-                }
+                // Render Mermaid diagrams. Diagrams inside sections that were
+                // restored collapsed are rendered later, when expanded.
+                renderMermaidDiagrams(contentEl);
                 
                 // Notify Swift with heading list
                 if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.headingsExtracted) {
@@ -585,18 +628,7 @@
         scrollToAnchor: function (anchorId) {
             const el = document.getElementById(anchorId);
             if (el) {
-                let node = el.parentElement;
-                while (node) {
-                    if (node.classList && node.classList.contains('collapsible-section') && node.classList.contains('collapsed')) {
-                        node.classList.remove('collapsed');
-                        const btn = node.querySelector(':scope > .collapsible-header > .collapsible-toggle');
-                        if (btn) {
-                            btn.setAttribute('aria-expanded', 'true');
-                            btn.setAttribute('aria-label', 'Collapse section');
-                        }
-                    }
-                    node = node.parentElement;
-                }
+                expandCollapsedAncestors(el);
                 el.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 el.classList.add('heading-anchor-target');
                 setTimeout(function () {
